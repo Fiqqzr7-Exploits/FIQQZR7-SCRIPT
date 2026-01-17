@@ -1,41 +1,46 @@
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
 
--- WHITELIST
+-- =========================
+-- WHITELIST USERNAME
+-- =========================
 local Whitelist = {
-    "AmmarNajmie"
-    "2sxvkk"
-    "4leppp10"
+    "AmmarNajmie",
+    "2sxvkk",
+    "4leppp10",
+    "AdminAccount"
 }
 
-local Player = game:GetService("Players").LocalPlayer
-local Allowed = false
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
 
-for _, v in pairs(Whitelist) do
-    if Player.Name == v then
-        Allowed = true
+local function IsWhitelisted()
+    for _, v in ipairs(Whitelist) do
+        if Player.Name == v then
+            return true
+        end
     end
+    return false
 end
 
-if not Allowed then
-    Player:Kick("❌  KO BUAT STAFF KIMAK  MAMPUS KO AQ KICK BABI")
+if not IsWhitelisted() then
+    Player:Kick("❌ STAFF ONLY FIQQZR JE BOLEH BINGAI")
     return
 end
 
--- UI hanya muncul kalau whitelist
+-- UI hanya muncul jika lulus whitelist
 local Window = OrionLib:MakeWindow({
     Name = "Private Script",
-    HidePremium = false,
     SaveConfig = false,
     IntroEnabled = true
 })
 
 local Tab = Window:MakeTab({
     Name = "Main",
-    Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-Tab:AddLabel("✅ Access Granted: "..Player.Name)
+Tab:AddLabel("✅ Access Granted")
+Tab:AddLabel("👤 Username: "..Player.Name)
 
 OrionLib:Init()
             local Window = OrionLib:MakeWindow({
