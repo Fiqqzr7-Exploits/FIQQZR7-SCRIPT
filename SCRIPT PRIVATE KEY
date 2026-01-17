@@ -29,7 +29,7 @@ end
 
 -- UI hanya muncul jika lulus whitelist
 local Window = OrionLib:MakeWindow({
-    Name = "STAFF ONLY",
+    Name = "Private Script",
     SaveConfig = false,
     IntroEnabled = true
 })
