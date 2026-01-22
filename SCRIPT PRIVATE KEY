@@ -113,6 +113,37 @@ MainTab:CreateButton({
 -- =========================
 -- TAB MAIN
 -- =========================
+local MainTab = Window:CreateTab("STAFF", 4483362458)
+
+-- Button
+MainTab:CreateButton({
+   Name = "FARM MBR",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Marco8642/science/main/the%20ride2", true))()
+      Rayfield:Notify({
+         Title = "Berjaya exucute",
+         Content = "STAFF ONLY",
+         Duration = 4
+      })
+   end
+})
+
+-- Button
+MainTab:CreateButton({
+   Name = "F3X BTOOLS",
+   Callback = function()
+        loadstring(game:GetObjects("rbxassetid://6695644299")[1].Source)()
+      Rayfield:Notify({
+         Title = "CHECK BEG",
+         Content = "STAFF ONLY",
+         Duration = 4
+      })
+   end
+})
+
+-- =========================
+-- TAB MAIN
+-- =========================
 local MainTab = Window:CreateTab("MainV2", 4483362458)
 
 -- Button
