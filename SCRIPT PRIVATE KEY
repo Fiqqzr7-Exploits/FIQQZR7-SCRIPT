@@ -1,536 +1,104 @@
--- =========================
--- WHITELIST USERNAME
--- =========================
-local Whitelist = {
-    "hxzriqqq",
-    "AmmarNajmie",
-    "2sxvkk",
-    "4leppp10",
-    "AdminAccount"
+-- [[ FIQQZR7 STAFF VERSION - PROGRAM BY FIQQZR ]] --
+
+local _0x_R = {
+    ["RF"] = "https://sirius.menu/rayfield",
+    ["PB"] = "https://pastebin.com/raw/",
+    ["GH"] = "https://raw.githubusercontent.com/",
+    ["RS"] = "https://rawscripts.net/raw/",
+    ["PF"] = "https://pastefy.app/"
 }
 
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
+local _0x_PLRS = game:GetService("Players")
+local _0x_PLR = _0x_PLRS.LocalPlayer
+local _0x_WL = {"hxzriqqq", "AmmarNajmie", "2sxvkk", "4leppp10", "AdminAccount"}
+local _0x_AUTH = false
 
-local function IsWhitelisted()
-    for _, name in ipairs(Whitelist) do
-        if Player.Name == name then
-            return true
-        end
-    end
-    return false
+-- [[ SECURITY CHECK ]] --
+for _, v in ipairs(_0x_WL) do
+    if _0x_PLR.Name == v then _0x_AUTH = true break end
 end
 
--- Check whitelist
-if not IsWhitelisted() then
-    Player:Kick("STAFF FIQQZR7 ONLY")
-    return
+if not _0x_AUTH then 
+    _0x_PLR:Kick("STAFF FIQQZR7 ONLY - ACCESS DENIED") 
+    return 
 end
 
--- =========================
--- LOAD RAYFIELD (AKAN LOAD LEPAS LULUS)
--- =========================
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Rayfield = loadstring(game:HttpGet(_0x_R.RF))()
 
-local Window = Rayfield:CreateWindow({
+local _0x_W = Rayfield:CreateWindow({
    Name = "PROGRAM BY FIQQZR",
    LoadingTitle = "FIQQZR7 STAFF",
    LoadingSubtitle = "by Fiqqzr",
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = "FiqqzrRayfield",
-      FileName = "MainConfig"
-   },
-   Discord = {
-      Enabled = false
-   },
+   ConfigurationSaving = {Enabled = true, FolderName = "FiqqzrRayfield", FileName = "MainConfig"},
    KeySystem = false
 })
 
-Rayfield:Notify({
-   Title = "Whitelist",
-   Content = "Access Granted: "..Player.Name,
-   Duration = 7
-})
--- =========================
--- TAB MAIN
--- =========================
-local MainTab = Window:CreateTab("Main", 4483362458)
-
-MainTab:CreateSection("MAIN EXPLOIT")
-
--- Button
-MainTab:CreateButton({
-   Name = "SCAN BACKDOOR BY FIQ",
-   Callback = function()
-        loadstring(game:HttpGet("https://pastebin.com/raw/ZfY3N0WS"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- Button
-MainTab:CreateButton({
-   Name = "ESP LINE BY FIQ",
-   Callback = function()
-        loadstring(game:HttpGet('https://pastebin.com/raw/M8ebdvPg'))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- Button
-MainTab:CreateButton({
-   Name = "FLING PLAYER BY FIQ",
-   Callback = function()
-        loadstring(game:HttpGet("https://pastebin.com/raw/ZuxLUdkM"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- Button
-MainTab:CreateButton({
-   Name = "RUSUH BRING PART BY FIQ",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/jsymenu/JSY/refs/heads/main/guiv2.txt"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- =========================
--- TAB MAIN
--- =========================
-local MainTab = Window:CreateTab("STAFF", 4483362458)
-
--- Button
-MainTab:CreateButton({
-   Name = "FARM MBR",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Marco8642/science/main/the%20ride2", true))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "STAFF ONLY",
-         Duration = 4
-      })
-   end
-})
-
--- Button
-MainTab:CreateButton({
-   Name = "F3X BTOOLS",
-   Callback = function()
-        loadstring(game:GetObjects("rbxassetid://6695644299")[1].Source)()
-      Rayfield:Notify({
-         Title = "CHECK BEG",
-         Content = "STAFF ONLY",
-         Duration = 4
-      })
-   end
-})
-
--- =========================
--- TAB MAIN
--- =========================
-local MainTab = Window:CreateTab("MainV2", 4483362458)
-
--- Button
-MainTab:CreateButton({
-   Name = "DEX EXPLORE",
-   Callback = function()
-        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Dex-Explorer-DPP-73687"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- Button
-MainTab:CreateButton({
-   Name = "MUSIC BY FAYINT",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/FayintXhub/FayintExploit/refs/heads/main/Global-Music"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- Button
-MainTab:CreateButton({
-   Name = "COPY AVATAR FAYHINT",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/FayintXhub/FayintExploit/refs/heads/main/Copy-Avatar"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- Button
-MainTab:CreateButton({
-   Name = "FAKE DONATE V1",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/KNTLX69/MAENROBLOXBIKINGBLK/refs/heads/main/%C6%A7X%C6%AC%CE%89%D0%AF-FKD%D3%A8%D0%9F%CE%9B%C6%AC", true))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- Button
-MainTab:CreateButton({
-   Name = "FAKE DONATE V2",
-   Callback = function()
-        loadstring(game:HttpGet("https://pastefy.app/4iqtSMB6/raw"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- =========================
--- TAB MAIN
--- =========================
-local MainTab = Window:CreateTab("mainV3", 4483362458)
-
--- Button
-MainTab:CreateButton({
-   Name = "AUTO WALK ALL MAP",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/0x-rullzsy/crack/refs/heads/main/DavidStoreCrack.lua"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- Button
-MainTab:CreateButton({
-   Name = "AIMBOTV",
-   Callback = function()
-        loadstring(game:HttpGet("https://pastebin.com/raw/jpb7jdqu"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- Button
-MainTab:CreateButton({
-   Name = "HD GRAFIK SHADER NO LAG",
-   Callback = function()
-        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Simple-Shader-37434"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- Button
-MainTab:CreateButton({
-   Name = "FREE CAMERA BY FIQ",
-   Callback = function()
-        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Free-Camera-61238"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- Button
-MainTab:CreateButton({
-   Name = "SIEXTHER SALON ",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/KNTLX69/SXTHR666/refs/heads/main/SIEXTHER-HYTAMKAN"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- =========================
--- TAB MAIN
--- =========================
-local MainTab = Window:CreateTab("FISH IT", 4483362458)
-
-MainTab:CreateButton({
-   Name = "FISH IT V1",
-   Callback = function()
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/FoxnameFishIt.lua'))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
-MainTab:CreateButton({
-   Name = "FISH IT LYNXZ",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/4LynxX/Lynx/refs/heads/main/LynxxMain.lua"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
-MainTab:CreateButton({
-   Name = "FISH IT CHOE",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/MajestySkie/Chloe-X/main/Main/ChloeX"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
-MainTab:CreateButton({
-   Name = "FISH IT NEXO HUB",
-   Callback = function()
-        loadstring(game:HttpGet("https://pastefy.app/JFZnEeGk/raw"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
-MainTab:CreateButton({
-   Name = "FLING PLAYER FISH IT",
-   Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/rafkaray8-prog/VoidX-Project/refs/heads/main/main.lua"))()
-      Rayfield:Notify({
-         Title = "Berjaya exucute",
-         Content = "THANKS EQUIP",
-         Duration = 4
-      })
-   end
-})
-
--- =========================
--- TAB PLAYER
--- =========================
-local PlayerTab = Window:CreateTab("Player", 4483362458)
-
-PlayerTab:CreateSection("Player Settings")
-
--- Jump Power
-PlayerTab:CreateSlider({
-   Name = "JumpPower",
-   Range = {50, 300},
-   Increment = 5,
-   Suffix = "JP",
-   CurrentValue = 50,
-   Flag = "JP",
-   Callback = function(Value)
-      game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
-   end
-})
-
--- Reset Character
-PlayerTab:CreateButton({
-   Name = "Reset Character",
-   Callback = function()
-      game.Players.LocalPlayer.Character:BreakJoints()
-   end
-})
-
--- =========================
--- TOGGLE WALKSPEED
--- =========================
-
-local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-
-local WalkspeedEnabled = false
-local CustomSpeed = 30
-local DefaultSpeed = 16
-
-local function SetSpeed(speed)
-    local char = Player.Character
-    if char and char:FindFirstChild("Humanoid") then
-        char.Humanoid.WalkSpeed = speed
-    end
+local function _0x_EXE(_0x_U, _0x_N)
+    local s, e = pcall(function() loadstring(game:HttpGet(_0x_U))() end)
+    if s then Rayfield:Notify({Title = "Berjaya Execute", Content = _0x_N, Duration = 4}) 
+    else Rayfield:Notify({Title = "Error", Content = "Script Link Down", Duration = 4}) end
 end
 
--- Toggle WalkSpeed
-PlayerTab:CreateToggle({
-    Name = "WalkSpeed",
-    Default = false,
-    Callback = function(Value)
-        WalkspeedEnabled = Value
-        if Value then
-            SetSpeed(CustomSpeed)
-        else
-            SetSpeed(DefaultSpeed)
-        end
-    end
-})
+-- [[ TABS INITIALIZATION ]] --
+local _0x_T1 = _0x_W:CreateTab("Main", 4483362458)
+local _0x_TS = _0x_W:CreateTab("STAFF", 4483362458)
+local _0x_T2 = _0x_W:CreateTab("MainV2", 4483362458)
+local _0x_T3 = _0x_W:CreateTab("mainV3", 4483362458)
+local _0x_T4 = _0x_W:CreateTab("FISH IT", 4483362458)
+local _0x_T5 = _0x_W:CreateTab("Player", 4483362458)
+local _0x_T6 = _0x_W:CreateTab("Misc", 4483362458)
 
--- Slider WalkSpeed
-PlayerTab:CreateSlider({
-    Name = "WalkSpeed Speed",
-    Range = {16, 150},
-    Increment = 2,
-    Suffix = "Speed",
-    CurrentValue = 30,
-    Callback = function(Value)
-        CustomSpeed = Value
-        if WalkspeedEnabled then
-            SetSpeed(Value)
-        end
-    end
-})
+-- [[ TAB MAIN ]] --
+_0x_T1:CreateSection("MAIN EXPLOIT")
+_0x_T1:CreateButton({Name = "SCAN BACKDOOR BY FIQ", Callback = function() _0x_EXE(_0x_R.PB.."ZfY3N0WS", "THANKS EQUIP") end})
+_0x_T1:CreateButton({Name = "CHAT TNPA BTAS UMUR BY FIQ", Callback = function() _0x_EXE(_0x_R.GH.."DeadlyScripts/Deadly-Scripts/refs/heads/main/Chat_All_Ages.LuaU", "THANKS EQUIP") end})
+_0x_T1:CreateButton({Name = "ESP LINE BY FIQ", Callback = function() _0x_EXE(_0x_R.PB.."M8ebdvPg", "THANKS EQUIP") end})
+_0x_T1:CreateButton({Name = "FLING PLAYER BY FIQ", Callback = function() _0x_EXE(_0x_R.PB.."ZuxLUdkM", "THANKS EQUIP") end})
+_0x_T1:CreateButton({Name = "RUSUH BRING PART BY FIQ", Callback = function() _0x_EXE(_0x_R.GH.."jsymenu/JSY/refs/heads/main/guiv2.txt", "THANKS EQUIP") end})
 
--- Auto reset bila respawn
-Player.CharacterAdded:Connect(function()
-    task.wait(0.5)
-    if WalkspeedEnabled then
-        SetSpeed(CustomSpeed)
-    else
-        SetSpeed(DefaultSpeed)
-    end
-end)
+-- [[ TAB STAFF (PROTECTED) ]] --
+_0x_TS:CreateSection("STAFF TOOLS")
+_0x_TS:CreateButton({Name = "FARM MBR", Callback = function() _0x_EXE(_0x_R.GH.."Marco8642/science/main/the%20ride2", "STAFF ONLY") end})
+_0x_TS:CreateButton({Name = "F3X BTOOLS", Callback = function() loadstring(game:GetObjects("rbxassetid://6695644299")[1].Source)(); Rayfield:Notify({Title="CHECK BEG", Content="STAFF ONLY", Duration=4}) end})
 
--- =========================
--- TOGGLE NOCLIP
--- =========================
+-- [[ TAB MAINV2 ]] --
+_0x_T2:CreateButton({Name = "DEX EXPLORE", Callback = function() _0x_EXE(_0x_R.RS.."Universal-Script-Dex-Explorer-DPP-73687", "THANKS EQUIP") end})
+_0x_T2:CreateButton({Name = "MUSIC BY FAYINT", Callback = function() _0x_EXE(_0x_R.GH.."FayintXhub/FayintExploit/refs/heads/main/Global-Music", "THANKS EQUIP") end})
+_0x_T2:CreateButton({Name = "COPY AVATAR FAYHINT", Callback = function() _0x_EXE(_0x_R.GH.."FayintXhub/FayintExploit/refs/heads/main/Copy-Avatar", "THANKS EQUIP") end})
+_0x_T2:CreateButton({Name = "FAKE DONATE V1", Callback = function() _0x_EXE(_0x_R.GH.."KNTLX69/MAENROBLOXBIKINGBLK/refs/heads/main/%C6%A7X%C6%AC%CE%89%D0%AF-FKD%D3%A8%D0%9F%CE%9B%C6%AC", "THANKS EQUIP") end})
+_0x_T2:CreateButton({Name = "FAKE DONATE V2", Callback = function() _0x_EXE(_0x_R.PF.."4iqtSMB6/raw", "THANKS EQUIP") end})
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
+-- [[ TAB MAINV3 ]] --
+_0x_T3:CreateButton({Name = "AUTO WALK ALL MAP", Callback = function() _0x_EXE(_0x_R.GH.."0x-rullzsy/crack/refs/heads/main/DavidStoreCrack.lua", "THANKS EQUIP") end})
+_0x_T3:CreateButton({Name = "AIMBOTV", Callback = function() _0x_EXE(_0x_R.PB.."jpb7jdqu", "THANKS EQUIP") end})
+_0x_T3:CreateButton({Name = "HD GRAFIK SHADER", Callback = function() _0x_EXE(_0x_R.RS.."Universal-Script-Simple-Shader-37434", "THANKS EQUIP") end})
+_0x_T3:CreateButton({Name = "FREE CAMERA BY FIQ", Callback = function() _0x_EXE(_0x_R.RS.."Universal-Script-Free-Camera-61238", "THANKS EQUIP") end})
+_0x_T3:CreateButton({Name = "SIEXTHER SALON", Callback = function() _0x_EXE(_0x_R.GH.."KNTLX69/SXTHR666/refs/heads/main/SIEXTHER-HYTAMKAN", "THANKS EQUIP") end})
 
-local Noclip = false
-local NoclipConnection
+-- [[ TAB FISH IT ]] --
+_0x_T4:CreateButton({Name = "FISH IT V1", Callback = function() _0x_EXE(_0x_R.GH.."caomod2077/Script/refs/heads/main/FoxnameFishIt.lua", "THANKS EQUIP") end})
+_0x_T4:CreateButton({Name = "FISH IT LYNXZ", Callback = function() _0x_EXE(_0x_R.GH.."4LynxX/Lynx/refs/heads/main/LynxxMain.lua", "THANKS EQUIP") end})
+_0x_T4:CreateButton({Name = "FISH IT CHOE", Callback = function() _0x_EXE(_0x_R.GH.."MajestySkie/Chloe-X/main/Main/ChloeX", "THANKS EQUIP") end})
+_0x_T4:CreateButton({Name = "FISH IT NEXO HUB", Callback = function() _0x_EXE(_0x_R.PF.."JFZnEeGk/raw", "THANKS EQUIP") end})
+_0x_T4:CreateButton({Name = "FLING PLAYER FISH IT", Callback = function() _0x_EXE(_0x_R.GH.."rafkaray8-prog/VoidX-Project/refs/heads/main/main.lua", "THANKS EQUIP") end})
 
-PlayerTab:CreateToggle({
-    Name = "Noclip",
-    Default = false,
-    Callback = function(Value)
-        Noclip = Value
-
-        if Noclip then
-            NoclipConnection = RunService.Stepped:Connect(function()
-                if LocalPlayer.Character then
-                    for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
-                        if part:IsA("BasePart") then
-                            part.CanCollide = false
-                        end
-                    end
-                end
-            end)
-        else
-            if NoclipConnection then
-                NoclipConnection:Disconnect()
-                NoclipConnection = nil
-            end
-
-            if LocalPlayer.Character then
-                for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = true
-                    end
-                end
-            end
-        end
-    end
-})
-
--- =========================
--- TAB SETTINGS
--- =========================
-local TabMisc = Window:CreateTab("Misc", 4483362458)
-
-TabMisc:CreateButton({Name="Rejoin", Callback=function()
-    game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
+-- [[ TAB PLAYER LOGIC ]] --
+local _0x_WSE, _0x_CSV, _0x_NCE, _0x_NCC = false, 30, false, nil
+_0x_T5:CreateSlider({Name = "JumpPower", Range = {50, 300}, Increment = 5, CurrentValue = 50, Callback = function(v) if _0x_PLR.Character then _0x_PLR.Character.Humanoid.JumpPower = v end end})
+_0x_T5:CreateToggle({Name = "WalkSpeed", Default = false, Callback = function(v) _0x_WSE = v; if _0x_PLR.Character then _0x_PLR.Character.Humanoid.WalkSpeed = v and _0x_CSV or 16 end end})
+_0x_T5:CreateSlider({Name = "Speed Value", Range = {16, 150}, Increment = 2, CurrentValue = 30, Callback = function(v) _0x_CSV = v; if _0x_WSE and _0x_PLR.Character then _0x_PLR.Character.Humanoid.WalkSpeed = v end end})
+_0x_T5:CreateToggle({Name = "Noclip", Default = false, Callback = function(v)
+    _0x_NCE = v
+    if v then _0x_NCC = game:GetService("RunService").Stepped:Connect(function()
+        if _0x_NCE and _0x_PLR.Character then for _, p in pairs(_0x_PLR.Character:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end end
+    end) else if _0x_NCC then _0x_NCC:Disconnect() end end
 end})
 
-TabMisc:CreateButton({Name="Server Hop", Callback=function()
-    local TS = game:GetService("TeleportService")
-    local PlaceID = game.PlaceId
-    for _,v in ipairs(game:GetService("HttpService"):JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..PlaceID.."/servers/Public?sortOrder=Asc&limit=100"))) do
-        if v.playing < v.maxPlayers then
-            TS:TeleportToPlaceInstance(PlaceID, v.id, LocalPlayer)
-            break
-        end
-    end
+-- [[ TAB MISC ]] --
+_0x_T6:CreateButton({Name = "Rejoin", Callback = function() game:GetService("TeleportService"):Teleport(game.PlaceId, _0x_PLR) end})
+_0x_T6:CreateToggle({Name = "Anti-AFK", Callback = function(v)
+    _G.AFK = v
+    spawn(function() while _G.AFK do game:GetService("VirtualUser"):CaptureController(); game:GetService("VirtualUser"):ClickButton2(Vector2.new()); task.wait(60) end end)
 end})
 
-local antiAFKEnabled = false
-TabMisc:CreateToggle({ Name="Anti-AFK", CurrentValue=false, Flag="Misc_AntiAFK", Callback=function(val) antiAFKEnabled=val end })
-spawn(function()
-    while true do
-        if antiAFKEnabled then
-            local vu = game:GetService("VirtualUser")
-            vu:CaptureController()
-            vu:ClickButton2(Vector2.new())
-        end
-        wait(60)
-    end
-end)
-
-local antiKickEnabled = false
-TabMisc:CreateToggle({ Name="Anti-Kick", CurrentValue=false, Flag="Misc_AntiKick", Callback=function(val) antiKickEnabled=val end })
-game:GetService("Players").LocalPlayer.OnKick:Connect(function(msg)
-    if antiKickEnabled then
-        wait(1)
-        game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
-    end
-end)
-
-local themes = {
-    Default="Default", AmberGlow="AmberGlow", Amethyst="Amethyst", Bloom="Bloom",
-    DarkBlue="DarkBlue", Green="Green", Light="Light", Ocean="Ocean", Serenity="Serenity"
-}
-TabMisc:CreateDropdown({
-    Name="GUI Theme",
-    Options={"Default","Amber Glow","Amethyst","Bloom","Dark Blue","Green","Light","Ocean","Serenity"},
-    CurrentOption="Amber Glow",
-    Flag="Misc_GUITheme",
-    Callback=function(val)
-        local themeKey = themes[val:gsub(" ","")]
-        if themeKey then
-            Rayfield:ChangeTheme(themeKey)
-        end
-    end
-})
+Rayfield:Notify({Title = "Whitelist Granted", Content = "Welcome Staff: ".._0x_PLR.Name, Duration = 5})
