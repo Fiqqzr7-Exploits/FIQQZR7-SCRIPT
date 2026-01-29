@@ -3,6 +3,7 @@
 -- =========================
 local Whitelist = {
     "hxzriqqq",
+    "AmmarNajmie",
     "2sxvkk",
     "4leppp10",
     "AdminAccount"
@@ -22,7 +23,7 @@ end
 
 -- Check whitelist
 if not IsWhitelisted() then
-    Player:Kick("❌ STAFF FIQQZR7 ONLY")
+    Player:Kick("STAFF FIQQZR7 ONLY")
     return
 end
 
@@ -33,7 +34,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "PROGRAM BY FIQQZR",
-   LoadingTitle = "Rayfield UI",
+   LoadingTitle = "FIQQZR7 STAFF",
    LoadingSubtitle = "by Fiqqzr",
    ConfigurationSaving = {
       Enabled = true,
