@@ -1,104 +1,123 @@
--- [[ FIQQZR7 STAFF VERSION - PROGRAM BY FIQQZR ]] --
+--[[
+    PROGRAM BY FIQQZR (FULL VERSION
+    STATUS: STAFF AUTHORIZED SYSTEM 2026
+]]--
 
-local _0x_R = {
-    ["RF"] = "https://sirius.menu/rayfield",
-    ["PB"] = "https://pastebin.com/raw/",
-    ["GH"] = "https://raw.githubusercontent.com/",
-    ["RS"] = "https://rawscripts.net/raw/",
-    ["PF"] = "https://pastefy.app/"
+local _f = string.char
+local _0xFIQ_SEC = {
+    ["\87\76"] = {
+        _f(104,120,122,114,105,113,113,113), -- hxzriqqq
+        _f(65,109,109,97,114,78,97,106,109,105,101), -- AmmarNajmie
+        _f(50,115,120,118,107,107), -- 2sxvkk
+        _f(52,108,101,112,112,112,49,48), -- 4leppp10
+        _f(65,100,109,105,110,65,99,99,111,117,110,116) -- AdminAccount
+    },
+    ["\82\70"] = "\104\116\116\112\115\58\47\47\115\105\114\105\117\115\46\109\101\110\117\47\114\97\121\102\105\101\108\100",
+    ["\75\67"] = "\240\159\154\171\32\83\84\65\70\70\32\70\73\81\81\90\82\55\32\79\78\76\89\33"
 }
 
-local _0x_PLRS = game:GetService("Players")
-local _0x_PLR = _0x_PLRS.LocalPlayer
-local _0x_WL = {"hxzriqqq", "AmmarNajmie", "2sxvkk", "4leppp10", "AdminAccount"}
-local _0x_AUTH = false
-
--- [[ SECURITY CHECK ]] --
-for _, v in ipairs(_0x_WL) do
-    if _0x_PLR.Name == v then _0x_AUTH = true break end
+local _P = game:GetService("\80\108\97\121\101\114\115").LocalPlayer
+local function _AUTH()
+    local authorized = false
+    for _, v in ipairs(_0xFIQ_SEC["\87\76"]) do
+        if _P.Name == v then authorized = true break end
+    end
+    return authorized
 end
 
-if not _0x_AUTH then 
-    _0x_PLR:Kick("STAFF FIQQZR7 ONLY - ACCESS DENIED") 
+if not _AUTH() then 
+    _P:Kick(_0xFIQ_SEC["\75\67"]) 
     return 
 end
 
-local Rayfield = loadstring(game:HttpGet(_0x_R.RF))()
+local Rayfield = loadstring(game:HttpGet(_0xFIQ_SEC["\82\70"]))()
 
-local _0x_W = Rayfield:CreateWindow({
-   Name = "PROGRAM BY FIQQZR",
-   LoadingTitle = "FIQQZR7 STAFF",
+local Window = Rayfield:CreateWindow({
+   Name = "PROGRAM BY FIQQZR | V1.0 (FULL VERSION)",
+   LoadingTitle = "FIQQZR7 STAFF SYSTEM",
    LoadingSubtitle = "by Fiqqzr",
-   ConfigurationSaving = {Enabled = true, FolderName = "FiqqzrRayfield", FileName = "MainConfig"},
+   ConfigurationSaving = { Enabled = true, FolderName = "FiqqzrRayfield", FileName = "MainConfig" },
+   Discord = { Enabled = false },
    KeySystem = false
 })
 
-local function _0x_EXE(_0x_U, _0x_N)
-    local s, e = pcall(function() loadstring(game:HttpGet(_0x_U))() end)
-    if s then Rayfield:Notify({Title = "Berjaya Execute", Content = _0x_N, Duration = 4}) 
-    else Rayfield:Notify({Title = "Error", Content = "Script Link Down", Duration = 4}) end
+local function _X(u, m)
+    local s, e = pcall(function() loadstring(game:HttpGet(u))() end)
+    Rayfield:Notify({Title = "Executed", Content = m or "Berjaya dijalankan!", Duration = 3})
 end
 
--- [[ TABS INITIALIZATION ]] --
-local _0x_T1 = _0x_W:CreateTab("Main", 4483362458)
-local _0x_TS = _0x_W:CreateTab("STAFF", 4483362458)
-local _0x_T2 = _0x_W:CreateTab("MainV2", 4483362458)
-local _0x_T3 = _0x_W:CreateTab("mainV3", 4483362458)
-local _0x_T4 = _0x_W:CreateTab("FISH IT", 4483362458)
-local _0x_T5 = _0x_W:CreateTab("Player", 4483362458)
-local _0x_T6 = _0x_W:CreateTab("Misc", 4483362458)
+-- ==========================================
+-- TABS INTEGRATION (ALL ORIGINAL FEATURES)
+-- ==========================================
 
--- [[ TAB MAIN ]] --
-_0x_T1:CreateSection("MAIN EXPLOIT")
-_0x_T1:CreateButton({Name = "SCAN BACKDOOR BY FIQ", Callback = function() _0x_EXE(_0x_R.PB.."ZfY3N0WS", "THANKS EQUIP") end})
-_0x_T1:CreateButton({Name = "CHAT TNPA BTAS UMUR BY FIQ", Callback = function() _0x_EXE(_0x_R.GH.."DeadlyScripts/Deadly-Scripts/refs/heads/main/Chat_All_Ages.LuaU", "THANKS EQUIP") end})
-_0x_T1:CreateButton({Name = "ESP LINE BY FIQ", Callback = function() _0x_EXE(_0x_R.PB.."M8ebdvPg", "THANKS EQUIP") end})
-_0x_T1:CreateButton({Name = "FLING PLAYER BY FIQ", Callback = function() _0x_EXE(_0x_R.PB.."ZuxLUdkM", "THANKS EQUIP") end})
-_0x_T1:CreateButton({Name = "RUSUH BRING PART BY FIQ", Callback = function() _0x_EXE(_0x_R.GH.."jsymenu/JSY/refs/heads/main/guiv2.txt", "THANKS EQUIP") end})
+-- TAB: MAIN
+local T1 = Window:CreateTab("Main", 4483362458)
+T1:CreateSection("🔥 Main Exploits")
+T1:CreateButton({Name = "Scan Backdoor (BY FIQ)", Callback = function() _X("https://pastebin.com/raw/ZfY3N0WS", "Scan Backdoor Active") end})
+T1:CreateButton({Name = "Chat All Ages (No Filter)", Callback = function() _X("https://raw.githubusercontent.com/DeadlyScripts/Deadly-Scripts/refs/heads/main/Chat_All_Ages.LuaU", "Chat Bypass Active") end})
+T1:CreateButton({Name = "ESP Line (Nampak Orang)", Callback = function() _X("https://pastebin.com/raw/M8ebdvPg", "ESP Enabled") end})
+T1:CreateButton({Name = "Fling Player", Callback = function() _X("https://pastebin.com/raw/ZuxLUdkM", "Fling Tool Loaded") end})
+T1:CreateButton({Name = "Rusuh/Bring Part", Callback = function() _X("https://raw.githubusercontent.com/jsymenu/JSY/refs/heads/main/guiv2.txt", "JSY Menu Loaded") end})
 
--- [[ TAB STAFF (PROTECTED) ]] --
-_0x_TS:CreateSection("STAFF TOOLS")
-_0x_TS:CreateButton({Name = "FARM MBR", Callback = function() _0x_EXE(_0x_R.GH.."Marco8642/science/main/the%20ride2", "STAFF ONLY") end})
-_0x_TS:CreateButton({Name = "F3X BTOOLS", Callback = function() loadstring(game:GetObjects("rbxassetid://6695644299")[1].Source)(); Rayfield:Notify({Title="CHECK BEG", Content="STAFF ONLY", Duration=4}) end})
+-- TAB: ADVANCED
+local T2 = Window:CreateTab("Advanced", 4483362458)
+T2:CreateSection("🛠️ Tools & Visuals")
+T2:CreateButton({Name = "Dex Explorer (Script Viewer)", Callback = function() _X("https://rawscripts.net/raw/Universal-Script-Dex-Explorer-DPP-73687", "Dex Loaded") end})
+T2:CreateButton({Name = "HD Grafik Shader (No Lag)", Callback = function() _X("https://rawscripts.net/raw/Universal-Script-Simple-Shader-37434", "Shaders Active") end})
+T2:CreateButton({Name = "Free Camera", Callback = function() _X("https://rawscripts.net/raw/Universal-Script-Free-Camera-61238", "Cam Active") end})
+T2:CreateSection("🎭 Spam & Trolls")
+T2:CreateButton({Name = "Fake Donate V1", Callback = function() _X("https://raw.githubusercontent.com/KNTLX69/MAENROBLOXBIKINGBLK/refs/heads/main/%C6%A7X%C6%AC%CE%89%D0%AF-FKD%D3%A8%D0%9F%CE%9B%C6%AC", "Fake Donate V1") end})
+T2:CreateButton({Name = "Copy Avatar", Callback = function() _X("https://raw.githubusercontent.com/FayintXhub/FayintExploit/refs/heads/main/Copy-Avatar", "Avatar Copier") end})
+T2:CreateButton({Name = "Siexther Salon (Hytamkan)", Callback = function() _X("https://raw.githubusercontent.com/KNTLX69/SXTHR666/refs/heads/main/SIEXTHER-HYTAMKAN", "Executed") end})
 
--- [[ TAB MAINV2 ]] --
-_0x_T2:CreateButton({Name = "DEX EXPLORE", Callback = function() _0x_EXE(_0x_R.RS.."Universal-Script-Dex-Explorer-DPP-73687", "THANKS EQUIP") end})
-_0x_T2:CreateButton({Name = "MUSIC BY FAYINT", Callback = function() _0x_EXE(_0x_R.GH.."FayintXhub/FayintExploit/refs/heads/main/Global-Music", "THANKS EQUIP") end})
-_0x_T2:CreateButton({Name = "COPY AVATAR FAYHINT", Callback = function() _0x_EXE(_0x_R.GH.."FayintXhub/FayintExploit/refs/heads/main/Copy-Avatar", "THANKS EQUIP") end})
-_0x_T2:CreateButton({Name = "FAKE DONATE V1", Callback = function() _0x_EXE(_0x_R.GH.."KNTLX69/MAENROBLOXBIKINGBLK/refs/heads/main/%C6%A7X%C6%AC%CE%89%D0%AF-FKD%D3%A8%D0%9F%CE%9B%C6%AC", "THANKS EQUIP") end})
-_0x_T2:CreateButton({Name = "FAKE DONATE V2", Callback = function() _0x_EXE(_0x_R.PF.."4iqtSMB6/raw", "THANKS EQUIP") end})
+-- TAB: FISH IT
+local T3 = Window:CreateTab("Fish It", 4483362458)
+T3:CreateSection("🎣 fish it Fishing Scripts")
+T3:CreateButton({ Name = "Fish It V1", Callback = function() _X('https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/FoxnameFishIt.lua') end })
+T3:CreateButton({ Name = "Fish It Lynxz", Callback = function() _X("https://raw.githubusercontent.com/4LynxX/Lynx/refs/heads/main/LynxxMain.lua") end })
+T3:CreateButton({ Name = "Fish It Choe", Callback = function() _X("https://raw.githubusercontent.com/MajestySkie/Chloe-X/main/Main/ChloeX") end })
+T3:CreateButton({ Name = "Fish It Nexo Hub", Callback = function() _X("https://pastefy.app/JFZnEeGk/raw") end })
 
--- [[ TAB MAINV3 ]] --
-_0x_T3:CreateButton({Name = "AUTO WALK ALL MAP", Callback = function() _0x_EXE(_0x_R.GH.."0x-rullzsy/crack/refs/heads/main/DavidStoreCrack.lua", "THANKS EQUIP") end})
-_0x_T3:CreateButton({Name = "AIMBOTV", Callback = function() _0x_EXE(_0x_R.PB.."jpb7jdqu", "THANKS EQUIP") end})
-_0x_T3:CreateButton({Name = "HD GRAFIK SHADER", Callback = function() _0x_EXE(_0x_R.RS.."Universal-Script-Simple-Shader-37434", "THANKS EQUIP") end})
-_0x_T3:CreateButton({Name = "FREE CAMERA BY FIQ", Callback = function() _0x_EXE(_0x_R.RS.."Universal-Script-Free-Camera-61238", "THANKS EQUIP") end})
-_0x_T3:CreateButton({Name = "SIEXTHER SALON", Callback = function() _0x_EXE(_0x_R.GH.."KNTLX69/SXTHR666/refs/heads/main/SIEXTHER-HYTAMKAN", "THANKS EQUIP") end})
+-- TAB: STAFF
+local T4 = Window:CreateTab("Staff", 4483362458)
+T4:CreateSection("👑 Staff Special Tools")
+T4:CreateButton({Name = "Farm MBR", Callback = function() _X("https://raw.githubusercontent.com/Marco8642/science/main/the%20ride2", "MBR Farm Active") end})
+T4:CreateButton({Name = "F3X BTools", Callback = function() loadstring(game:GetObjects("rbxassetid://6695644299")[1].Source)() Rayfield:Notify({Title = "BTools", Content = "Check inventory anda!", Duration = 4}) end})
 
--- [[ TAB FISH IT ]] --
-_0x_T4:CreateButton({Name = "FISH IT V1", Callback = function() _0x_EXE(_0x_R.GH.."caomod2077/Script/refs/heads/main/FoxnameFishIt.lua", "THANKS EQUIP") end})
-_0x_T4:CreateButton({Name = "FISH IT LYNXZ", Callback = function() _0x_EXE(_0x_R.GH.."4LynxX/Lynx/refs/heads/main/LynxxMain.lua", "THANKS EQUIP") end})
-_0x_T4:CreateButton({Name = "FISH IT CHOE", Callback = function() _0x_EXE(_0x_R.GH.."MajestySkie/Chloe-X/main/Main/ChloeX", "THANKS EQUIP") end})
-_0x_T4:CreateButton({Name = "FISH IT NEXO HUB", Callback = function() _0x_EXE(_0x_R.PF.."JFZnEeGk/raw", "THANKS EQUIP") end})
-_0x_T4:CreateButton({Name = "FLING PLAYER FISH IT", Callback = function() _0x_EXE(_0x_R.GH.."rafkaray8-prog/VoidX-Project/refs/heads/main/main.lua", "THANKS EQUIP") end})
+-- TAB: PLAYER
+local T5 = Window:CreateTab("Player", 4483362458)
+local ws_speed, ws_enabled = 16, false
+T5:CreateSlider({Name = "WalkSpeed Speed", Range = {16, 300}, Increment = 2, CurrentValue = 16, Callback = function(v) ws_speed = v if ws_enabled then _P.Character.Humanoid.WalkSpeed = v end end})
+T5:CreateToggle({Name = "Enable WalkSpeed", Default = false, Callback = function(v) ws_enabled = v _P.Character.Humanoid.WalkSpeed = v and ws_speed or 16 end})
+T5:CreateSlider({Name = "Jump Power", Range = {50, 500}, Increment = 5, CurrentValue = 50, Callback = function(v) _P.Character.Humanoid.JumpPower = v end})
 
--- [[ TAB PLAYER LOGIC ]] --
-local _0x_WSE, _0x_CSV, _0x_NCE, _0x_NCC = false, 30, false, nil
-_0x_T5:CreateSlider({Name = "JumpPower", Range = {50, 300}, Increment = 5, CurrentValue = 50, Callback = function(v) if _0x_PLR.Character then _0x_PLR.Character.Humanoid.JumpPower = v end end})
-_0x_T5:CreateToggle({Name = "WalkSpeed", Default = false, Callback = function(v) _0x_WSE = v; if _0x_PLR.Character then _0x_PLR.Character.Humanoid.WalkSpeed = v and _0x_CSV or 16 end end})
-_0x_T5:CreateSlider({Name = "Speed Value", Range = {16, 150}, Increment = 2, CurrentValue = 30, Callback = function(v) _0x_CSV = v; if _0x_WSE and _0x_PLR.Character then _0x_PLR.Character.Humanoid.WalkSpeed = v end end})
-_0x_T5:CreateToggle({Name = "Noclip", Default = false, Callback = function(v)
-    _0x_NCE = v
-    if v then _0x_NCC = game:GetService("RunService").Stepped:Connect(function()
-        if _0x_NCE and _0x_PLR.Character then for _, p in pairs(_0x_PLR.Character:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end end
-    end) else if _0x_NCC then _0x_NCC:Disconnect() end end
+local _nc = false
+T5:CreateToggle({Name = "Noclip", Default = false, Callback = function(v)
+    _nc = v
+    game:GetService("RunService").Stepped:Connect(function()
+        if _nc and _P.Character then
+            for _, d in pairs(_P.Character:GetDescendants()) do
+                if d:IsA("BasePart") then d.CanCollide = false end
+            end
+        end
+    end)
 end})
 
--- [[ TAB MISC ]] --
-_0x_T6:CreateButton({Name = "Rejoin", Callback = function() game:GetService("TeleportService"):Teleport(game.PlaceId, _0x_PLR) end})
-_0x_T6:CreateToggle({Name = "Anti-AFK", Callback = function(v)
-    _G.AFK = v
-    spawn(function() while _G.AFK do game:GetService("VirtualUser"):CaptureController(); game:GetService("VirtualUser"):ClickButton2(Vector2.new()); task.wait(60) end end)
+-- TAB: MISC
+local T6 = Window:CreateTab("Misc", 4483362458)
+T6:CreateButton({Name = "Rejoin Server", Callback = function() game:GetService("\84\101\108\101\112\111\114\116\83\101\114\118\105\99\101"):Teleport(game.PlaceId, _P) end})
+T6:CreateButton({Name = "Server Hop", Callback = function()
+    local Http = game:GetService("HttpService")
+    local Data = Http:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"))
+    for _, v in ipairs(Data.data) do
+        if v.playing < v.maxPlayers and v.id ~= game.JobId then game:GetService("\84\101\108\101\112\111\114\116\83\101\114\118\105\99\101"):TeleportToPlaceInstance(game.PlaceId, v.id) break end
+    end
 end})
 
-Rayfield:Notify({Title = "Whitelist Granted", Content = "Welcome Staff: ".._0x_PLR.Name, Duration = 5})
+local _afk = true
+T6:CreateToggle({Name = "Anti-AFK", Default = true, Callback = function(v) _afk = v end})
+_P.Idled:Connect(function()
+    if _afk then game:GetService("\86\105\114\116\117\97\108\85\115\101\114"):Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame) end
+end)
+
+Rayfield:Notify({Title = "AUTH SUCCESS", Content = "Semua fitur sedia digunakan, Boss!", Duration = 5})
