@@ -1,0 +1,221 @@
+local player = game.Players.LocalPlayer
+repeat task.wait() until player and player:FindFirstChild("PlayerGui")
+
+-- Variables
+local recording = false
+local playing = false
+local path = {}
+local speed = 1.0
+local conn = nil
+
+-- Create UI (PALING SIMPLE)
+local gui = Instance.new("ScreenGui")
+gui.Name = "FIQAUTOWALK"
+gui.Parent = player.PlayerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 250)
+frame.Position = UDim2.new(0.5, -100, 0.5, -125)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+frame.BorderColor3 = Color3.fromRGB(0, 160, 255)
+frame.BorderSizePixel = 2
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+title.Text = "FIQAUTOWALK"
+title.TextColor3 = Color3.fromRGB(0, 160, 255)
+title.TextSize = 14
+title.Font = Enum.Font.GothamBold
+title.Parent = frame
+
+-- Status
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, 0, 0, 20)
+status.Position = UDim2.new(0, 0, 0, 30)
+status.BackgroundTransparency = 1
+status.Text = "● READY"
+status.TextColor3 = Color3.fromRGB(255, 255, 255)
+status.TextSize = 12
+status.Font = Enum.Font.Gotham
+status.Parent = frame
+
+-- Points
+local points = Instance.new("TextLabel")
+points.Size = UDim2.new(1, 0, 0, 20)
+points.Position = UDim2.new(0, 0, 0, 50)
+points.BackgroundTransparency = 1
+points.Text = "0 pts"
+points.TextColor3 = Color3.fromRGB(150, 150, 150)
+points.TextSize = 10
+points.Font = Enum.Font.Gotham
+points.Parent = frame
+
+-- Button function
+local function createButton(y, text, color, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.8, 0, 0, 30)
+    btn.Position = UDim2.new(0.1, 0, 0, y)
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+    btn.TextColor3 = color
+    btn.Text = text
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 11
+    btn.Parent = frame
+    
+    btn.MouseButton1Click:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
+        task.wait(0.1)
+        btn.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+        callback()
+    end)
+end
+
+-- Record button
+createButton(75, "⏺️ RECORD", Color3.fromRGB(0, 200, 100), function()
+    if recording then
+        recording = false
+        status.Text = "● STOPPED"
+        status.TextColor3 = Color3.fromRGB(255, 200, 0)
+        points.Text = #path .. " pts"
+        task.wait(0.5)
+        status.Text = "● READY"
+        status.TextColor3 = Color3.fromRGB(255, 255, 255)
+    else
+        recording = true
+        playing = false
+        path = {}
+        status.Text = "● RECORDING"
+        status.TextColor3 = Color3.fromRGB(255, 80, 80)
+        points.Text = "0 pts"
+    end
+end)
+
+-- Play button
+createButton(110, "▶️ PLAY", Color3.fromRGB(0, 160, 255), function()
+    if #path == 0 then
+        status.Text = "❌ NO PATH"
+        status.TextColor3 = Color3.fromRGB(255, 80, 80)
+        task.wait(1)
+        status.Text = "● READY"
+        status.TextColor3 = Color3.fromRGB(255, 255, 255)
+        return
+    end
+    
+    if playing then
+        playing = false
+        if conn then conn:Disconnect() end
+        status.Text = "● STOPPED"
+        status.TextColor3 = Color3.fromRGB(255, 200, 0)
+        task.wait(0.5)
+        status.Text = "● READY"
+        status.TextColor3 = Color3.fromRGB(255, 255, 255)
+    else
+        playing = true
+        recording = false
+        local idx = 1
+        local start = tick()
+        status.Text = "● PLAYING"
+        status.TextColor3 = Color3.fromRGB(0, 200, 100)
+        
+        if conn then conn:Disconnect() end
+        conn = game:GetService("RunService").Heartbeat:Connect(function()
+            if not playing then return end
+            
+            local elapsed = (tick() - start) * speed
+            local target = math.floor(elapsed * 30) + 1
+            
+            if target > #path then
+                start = tick()
+                target = 1
+            end
+            
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = CFrame.new(path[target])
+            end
+        end)
+    end
+end)
+
+-- Speed buttons
+local speedText = Instance.new("TextLabel")
+speedText.Size = UDim2.new(0.3, 0, 0, 25)
+speedText.Position = UDim2.new(0.35, 0, 0, 145)
+speedText.BackgroundTransparency = 1
+speedText.Text = "⚡ 1.0x"
+speedText.TextColor3 = Color3.fromRGB(0, 160, 255)
+speedText.TextSize = 11
+speedText.Font = Enum.Font.GothamBold
+speedText.Parent = frame
+
+-- Speed down
+local speedDown = Instance.new("TextButton")
+speedDown.Size = UDim2.new(0, 25, 0, 25)
+speedDown.Position = UDim2.new(0.2, 0, 0, 145)
+speedDown.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+speedDown.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedDown.Text = "-"
+speedDown.Font = Enum.Font.GothamBold
+speedDown.TextSize = 14
+speedDown.Parent = frame
+
+speedDown.MouseButton1Click:Connect(function()
+    speed = math.max(0.2, speed - 0.2)
+    speedText.Text = "⚡ " .. string.format("%.1f", speed) .. "x"
+end)
+
+-- Speed up
+local speedUp = Instance.new("TextButton")
+speedUp.Size = UDim2.new(0, 25, 0, 25)
+speedUp.Position = UDim2.new(0.65, 0, 0, 145)
+speedUp.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+speedUp.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedUp.Text = "+"
+speedUp.Font = Enum.Font.GothamBold
+speedUp.TextSize = 14
+speedUp.Parent = frame
+
+speedUp.MouseButton1Click:Connect(function()
+    speed = math.min(3.0, speed + 0.2)
+    speedText.Text = "⚡ " .. string.format("%.1f", speed) .. "x"
+end)
+
+-- Clear button
+createButton(175, "🗑️ CLEAR", Color3.fromRGB(255, 200, 0), function()
+    path = {}
+    points.Text = "0 pts"
+    status.Text = "✓ CLEARED"
+    status.TextColor3 = Color3.fromRGB(255, 200, 0)
+    task.wait(0.5)
+    status.Text = "● READY"
+    status.TextColor3 = Color3.fromRGB(255, 255, 255)
+end)
+
+-- Close button
+local close = Instance.new("TextButton")
+close.Size = UDim2.new(1, 0, 0, 25)
+close.Position = UDim2.new(0, 0, 1, -25)
+close.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+close.TextColor3 = Color3.fromRGB(255, 80, 80)
+close.Text = "✕ CLOSE"
+close.Font = Enum.Font.GothamBold
+close.TextSize = 11
+close.Parent = frame
+
+close.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
+-- Recording loop
+game:GetService("RunService").Heartbeat:Connect(function()
+    if recording and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        table.insert(path, player.Character.HumanoidRootPart.Position)
+        points.Text = #path .. " pts"
+    end
+end)
+
+print("✅ AUTOWALK MINIMAL LOADED!")
