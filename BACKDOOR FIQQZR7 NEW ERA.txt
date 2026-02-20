@@ -1,4 +1,5 @@
--- FIQQZR7 BACKDOOR SPAMMER - REMOTE EVENT EDITION (DENGAN BROADCAST!)
+-- FIQQZR7 BRUTAL FIRE - REMOTE EVENT SPAMMER (MODERN ULTRA)
+-- OMEGA-NULL EDITION | BLUE THEME
 local player = game.Players.LocalPlayer
 repeat task.wait() until player and player:FindFirstChild("PlayerGui")
 
@@ -8,6 +9,7 @@ local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TeleportService = game:GetService("TeleportService")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 
 -- ==============================================
 -- KONFIGURASI
@@ -38,14 +40,12 @@ local broadcastEnabled = false
 -- ==============================================
 -- FUNGSI NOTIFIKASI
 -- ==============================================
-local function notify(msg, color)
-    if config.showNotifications then
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "🔵 FIQQZR7 REMOTE",
-            Text = msg,
-            Duration = 2
-        })
-    end
+local function notify(msg)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "🔥 FIQQZR7 BRUTAL",
+        Text = msg,
+        Duration = 2
+    })
     print("[FIQQZR7] " .. msg)
 end
 
@@ -97,6 +97,7 @@ local function generatePayload()
         "bypass",
         "fly",
         "noclip",
+        "infinite yield",
         
         -- Values
         1337,
@@ -109,6 +110,13 @@ local function generatePayload()
         {command = "fly", args = {true}},
         {command = "kill", target = player.Name},
         {command = "admin", plr = player.Name},
+        {command = "exploit", type = "crash"},
+        {cmd = "destroy", target = "all"},
+        
+        -- Random data
+        math.random(1000, 9999),
+        tostring(math.random()),
+        "data_" .. math.random(100, 999),
     }
     return payloads[math.random(1, #payloads)]
 end
@@ -118,7 +126,6 @@ end
 -- ==============================================
 local function generateBroadcastPayload()
     local broadcastPayloads = {
-        -- Common announcement formats
         {["Message"] = broadcastMessage},
         {["msg"] = broadcastMessage},
         {["text"] = broadcastMessage},
@@ -134,21 +141,16 @@ local function generateBroadcastPayload()
         {["command"] = "say", ["args"] = {broadcastMessage}},
         {["cmd"] = "bc", ["msg"] = broadcastMessage},
         {["type"] = "announcement", ["value"] = broadcastMessage},
-        broadcastMessage,  -- Plain string
+        broadcastMessage,
     }
     return broadcastPayloads[math.random(1, #broadcastPayloads)]
 end
 
 -- ==============================================
--- FUNGSI SPAM REMOTE (DENGAN COUNT)
+-- FUNGSI SPAM REMOTE
 -- ==============================================
 local function spamRemote(remote, count)
-    if not remote or not remote:IsA("RemoteEvent") then
-        notify("❌ Invalid remote")
-        return
-    end
-    
-    notify("🚀 Spamming: " .. remote.Name)
+    if not remote or not remote:IsA("RemoteEvent") then return end
     
     local thread = coroutine.create(function()
         local spammed = 0
@@ -157,23 +159,22 @@ local function spamRemote(remote, count)
         while isSpamming and spammed < maxSpam do
             pcall(function()
                 if broadcastEnabled then
-                    -- Broadcast mode - send message in various formats
                     remote:FireServer(generateBroadcastPayload())
                     remote:FireServer("announce", broadcastMessage)
                     remote:FireServer("broadcast", broadcastMessage)
                     remote:FireServer("chat", broadcastMessage)
                     remote:FireServer("say", broadcastMessage)
                 else
-                    -- Normal spam mode
                     remote:FireServer(generatePayload())
                     remote:FireServer({cmd = "execute", code = generatePayload()})
                     remote:FireServer("admin", player.Name, true)
+                    remote:FireServer("kick", "all", "FIQQZR7")
+                    remote:FireServer("ban", "everyone", 999999)
                 end
             end)
             
-            spammed = spammed + 3
-            spamCount = spamCount + 3
-            
+            spammed = spammed + 5
+            spamCount = spamCount + 5
             task.wait(config.spamDelay)
         end
     end)
@@ -198,8 +199,13 @@ local function spamAllRemotes()
     isSpamming = true
     spamThreads = {}
     
-    local mode = broadcastEnabled and "BROADCAST" or "SPAM"
-    notify("🔥 " .. mode .. " " .. #remoteEvents .. " RemoteEvents...")
+    local mode = broadcastEnabled and "📢 BROADCAST" or "💥 BRUTAL SPAM"
+    notify("🔥 " .. mode .. " on " .. #remoteEvents .. " remotes")
+    
+    if statusLabel then
+        statusLabel.Text = mode .. " ACTIVE"
+        statusLabel.TextColor3 = broadcastEnabled and Color3.fromRGB(0, 200, 255) or Color3.fromRGB(70, 150, 255)
+    end
     
     for i, remote in ipairs(remoteEvents) do
         local thread = coroutine.create(function()
@@ -209,11 +215,14 @@ local function spamAllRemotes()
                     if broadcastEnabled then
                         remote.obj:FireServer(generateBroadcastPayload())
                         remote.obj:FireServer("broadcast", broadcastMessage)
+                        remote.obj:FireServer("announce", broadcastMessage)
                     else
                         remote.obj:FireServer(generatePayload())
                         remote.obj:FireServer("execute", generatePayload())
+                        remote.obj:FireServer("admin", player.Name)
+                        remote.obj:FireServer("crash", "FIQQZR7")
                     end
-                    spammed = spammed + 2
+                    spammed = spammed + 4
                 end)
                 task.wait(config.spamDelay / 2)
             end
@@ -235,81 +244,176 @@ local function stopSpam()
         pcall(function() conn:Disconnect() end)
     end
     spamConnections = {}
+    
+    if statusLabel then
+        statusLabel.Text = "● STANDBY"
+        statusLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+    end
+    
     notify("⏹️ Stopped all spam")
 end
 
 -- ==============================================
--- CREATE UI
+-- CREATE MODERN UI (GLASSMORPHISM + NEON BLUE)
 -- ==============================================
 local gui = Instance.new("ScreenGui")
-gui.Name = "FIQQZR7_RemoteSpammer"
+gui.Name = "FIQQZR7_BrutalFire"
 gui.Parent = player.PlayerGui
 gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
+-- Main Container (with outer glow)
+local container = Instance.new("Frame")
+container.Size = UDim2.new(0, 300, 0, 480)
+container.Position = UDim2.new(0.5, -150, 0.5, -240)
+container.BackgroundTransparency = 1
+container.Active = true
+container.Draggable = true
+container.Parent = gui
+
+-- Main Frame (Glass effect)
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 250, 0, 400)  -- Lebih besar sikit untuk accomodate sliders
-main.Position = UDim2.new(0.5, -125, 0.5, -200)
+main.Size = UDim2.new(1, 0, 1, 0)
+main.Position = UDim2.new(0, 0, 0, 0)
 main.BackgroundColor3 = Color3.fromRGB(8, 12, 20)
+main.BackgroundTransparency = 0.1
 main.BorderColor3 = Color3.fromRGB(0, 150, 255)
 main.BorderSizePixel = 2
-main.Active = true
-main.Draggable = true
 main.ClipsDescendants = true
-main.Parent = gui
+main.Parent = container
 
--- Background Gradient
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 20)
+mainCorner.Parent = main
+
+-- Glass blur effect
+local blur = Instance.new("Frame")
+blur.Size = UDim2.new(1, 0, 1, 0)
+blur.BackgroundColor3 = Color3.fromRGB(10, 15, 25)
+blur.BackgroundTransparency = 0.6
+blur.BorderSizePixel = 0
+blur.ZIndex = 0
+blur.Parent = main
+
+local blurCorner = Instance.new("UICorner")
+blurCorner.CornerRadius = UDim.new(0, 20)
+blurCorner.Parent = blur
+
+-- Neon glow border (BLUE)
+local glow = Instance.new("Frame")
+glow.Size = UDim2.new(1, 8, 1, 8)
+glow.Position = UDim2.new(0, -4, 0, -4)
+glow.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
+glow.BackgroundTransparency = 0.8
+glow.BorderSizePixel = 0
+glow.ZIndex = 0
+glow.Parent = container
+
+local glowCorner = Instance.new("UICorner")
+glowCorner.CornerRadius = UDim.new(0, 22)
+glowCorner.Parent = glow
+
+-- Inner glow (CYAN)
+local innerGlow = Instance.new("Frame")
+innerGlow.Size = UDim2.new(1, 4, 1, 4)
+innerGlow.Position = UDim2.new(0, -2, 0, -2)
+innerGlow.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+innerGlow.BackgroundTransparency = 0.7
+innerGlow.BorderSizePixel = 0
+innerGlow.ZIndex = 0
+innerGlow.Parent = container
+
+local innerGlowCorner = Instance.new("UICorner")
+innerGlowCorner.CornerRadius = UDim.new(0, 21)
+innerGlowCorner.Parent = innerGlow
+
+-- Gradient background (BLUE SHADES)
 local gradient = Instance.new("UIGradient")
 gradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(5, 10, 18)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 18, 25))
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 20, 40)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(5, 15, 35)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 10, 30))
 })
 gradient.Rotation = 45
 gradient.Parent = main
 
 -- ==============================================
--- TITLE BAR
+-- TITLE BAR (MODERN) - NO VERSION
 -- ==============================================
 local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 30)
-titleBar.BackgroundColor3 = Color3.fromRGB(0, 70, 140)
-titleBar.BorderSizePixel = 0
+titleBar.Size = UDim2.new(1, -16, 0, 50)
+titleBar.Position = UDim2.new(0, 8, 0, 8)
+titleBar.BackgroundColor3 = Color3.fromRGB(10, 15, 30)
+titleBar.BackgroundTransparency = 0.3
+titleBar.BorderColor3 = Color3.fromRGB(0, 150, 255)
+titleBar.BorderSizePixel = 1
 titleBar.Parent = main
 
+local titleBarCorner = Instance.new("UICorner")
+titleBarCorner.CornerRadius = UDim.new(0, 12)
+titleBarCorner.Parent = titleBar
+
+-- Icon
+local icon = Instance.new("TextLabel")
+icon.Size = UDim2.new(0, 40, 1, 0)
+icon.Position = UDim2.new(0, 8, 0, 0)
+icon.BackgroundTransparency = 1
+icon.Text = "🔥"
+icon.TextColor3 = Color3.fromRGB(0, 200, 255)
+icon.TextSize = 22
+icon.Font = Enum.Font.GothamBold
+icon.Parent = titleBar
+
+-- Title
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(0.6, 0, 1, 0)
-title.Position = UDim2.new(0, 8, 0, 0)
+title.Size = UDim2.new(0.5, 0, 1, 0)
+title.Position = UDim2.new(0, 50, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "FIQQZR7 BRUTAL FIRE"
+title.Text = "FIQQZR7 SPAM"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextSize = 13
+title.TextSize = 15
 title.Font = Enum.Font.GothamBold
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = titleBar
 
+-- Hide Button
 local hideBtn = Instance.new("TextButton")
-hideBtn.Size = UDim2.new(0, 20, 0, 20)
-hideBtn.Position = UDim2.new(1, -45, 0.5, -10)
-hideBtn.BackgroundColor3 = Color3.fromRGB(30, 100, 180)
+hideBtn.Size = UDim2.new(0, 28, 0, 28)
+hideBtn.Position = UDim2.new(1, -65, 0.5, -14)
+hideBtn.BackgroundColor3 = Color3.fromRGB(10, 25, 45)
+hideBtn.BorderColor3 = Color3.fromRGB(0, 150, 255)
+hideBtn.BorderSizePixel = 1
 hideBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 hideBtn.Text = "−"
 hideBtn.Font = Enum.Font.GothamBold
-hideBtn.TextSize = 14
+hideBtn.TextSize = 18
 hideBtn.Parent = titleBar
 
+local hideCorner = Instance.new("UICorner")
+hideCorner.CornerRadius = UDim.new(0, 6)
+hideCorner.Parent = hideBtn
+
+-- Close Button
 local close = Instance.new("TextButton")
-close.Size = UDim2.new(0, 20, 0, 20)
-close.Position = UDim2.new(1, -23, 0.5, -10)
-close.BackgroundColor3 = Color3.fromRGB(30, 100, 180)
-close.TextColor3 = Color3.fromRGB(255, 150, 150)
+close.Size = UDim2.new(0, 28, 0, 28)
+close.Position = UDim2.new(1, -32, 0.5, -14)
+close.BackgroundColor3 = Color3.fromRGB(40, 20, 45)
+close.BorderColor3 = Color3.fromRGB(0, 150, 255)
+close.BorderSizePixel = 1
+close.TextColor3 = Color3.fromRGB(255, 255, 255)
 close.Text = "✕"
 close.Font = Enum.Font.GothamBold
-close.TextSize = 12
+close.TextSize = 14
 close.Parent = titleBar
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 6)
+closeCorner.Parent = close
 
 -- Content Container
 local contentContainer = Instance.new("Frame")
-contentContainer.Size = UDim2.new(1, -10, 1, -35)
-contentContainer.Position = UDim2.new(0, 5, 0, 30)
+contentContainer.Size = UDim2.new(1, -16, 1, -70)
+contentContainer.Position = UDim2.new(0, 8, 0, 62)
 contentContainer.BackgroundTransparency = 1
 contentContainer.Parent = main
 
@@ -317,13 +421,13 @@ contentContainer.Parent = main
 hideBtn.MouseButton1Click:Connect(function()
     uiVisible = not uiVisible
     if uiVisible then
-        TweenService:Create(main, TweenInfo.new(0.3), {Size = UDim2.new(0, 250, 0, 400)}):Play()
+        TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 300, 0, 480)}):Play()
         task.wait(0.1)
         contentContainer.Visible = true
         hideBtn.Text = "−"
     else
         contentContainer.Visible = false
-        TweenService:Create(main, TweenInfo.new(0.3), {Size = UDim2.new(0, 250, 0, 30)}):Play()
+        TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 300, 0, 50)}):Play()
         hideBtn.Text = "+"
     end
 end)
@@ -334,36 +438,82 @@ close.MouseButton1Click:Connect(function()
 end)
 
 -- ==============================================
--- CONTENT FRAME (SCROLLABLE)
+-- CONTENT (SCROLLABLE)
 -- ==============================================
 local content = Instance.new("ScrollingFrame")
 content.Size = UDim2.new(1, -5, 1, -5)
 content.Position = UDim2.new(0, 2, 0, 2)
 content.BackgroundTransparency = 1
 content.BorderSizePixel = 0
-content.CanvasSize = UDim2.new(0, 0, 0, 550)
+content.CanvasSize = UDim2.new(0, 0, 0, 580)
 content.ScrollBarThickness = 4
 content.ScrollBarImageColor3 = Color3.fromRGB(0, 150, 255)
 content.Parent = contentContainer
 
 -- ==============================================
--- BUTTON FUNCTION
+-- MODERN BUTTON FUNCTION (BLUE THEME)
 -- ==============================================
-local function createButton(parent, y, text, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.9, 0, 0, 26)
+local function createModernButton(parent, y, icon, text, desc, color, callback)
+    local btn = Instance.new("Frame")
+    btn.Size = UDim2.new(0.9, 0, 0, 45)
     btn.Position = UDim2.new(0.05, 0, 0, y)
-    btn.BackgroundColor3 = Color3.fromRGB(0, 80, 160)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Text = text
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 11
+    btn.BackgroundColor3 = color or Color3.fromRGB(10, 15, 30)
+    btn.BorderColor3 = Color3.fromRGB(0, 150, 255)
+    btn.BorderSizePixel = 1
     btn.Parent = parent
     
-    btn.MouseButton1Click:Connect(function()
-        btn.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 10)
+    btnCorner.Parent = btn
+    
+    -- Icon
+    local iconLabel = Instance.new("TextLabel")
+    iconLabel.Size = UDim2.new(0, 35, 1, 0)
+    iconLabel.Position = UDim2.new(0, 8, 0, 0)
+    iconLabel.BackgroundTransparency = 1
+    iconLabel.Text = icon
+    iconLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+    iconLabel.TextSize = 22
+    iconLabel.Font = Enum.Font.GothamBold
+    iconLabel.Parent = btn
+    
+    -- Text
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, -50, 0.6, 0)
+    textLabel.Position = UDim2.new(0, 50, 0, 6)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = text
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.TextSize = 13
+    textLabel.Font = Enum.Font.GothamBold
+    textLabel.TextXAlignment = Enum.TextXAlignment.Left
+    textLabel.Parent = btn
+    
+    -- Description
+    if desc then
+        local descLabel = Instance.new("TextLabel")
+        descLabel.Size = UDim2.new(1, -50, 0.4, 0)
+        descLabel.Position = UDim2.new(0, 50, 0, 24)
+        descLabel.BackgroundTransparency = 1
+        descLabel.Text = desc
+        descLabel.TextColor3 = Color3.fromRGB(140, 180, 255)
+        descLabel.TextSize = 9
+        descLabel.Font = Enum.Font.Gotham
+        descLabel.TextXAlignment = Enum.TextXAlignment.Left
+        descLabel.Parent = btn
+    end
+    
+    -- Click effect
+    local clickBtn = Instance.new("TextButton")
+    clickBtn.Size = UDim2.new(1, 0, 1, 0)
+    clickBtn.BackgroundTransparency = 1
+    clickBtn.Text = ""
+    clickBtn.Parent = btn
+    
+    clickBtn.MouseButton1Click:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(20, 30, 50)
         task.wait(0.1)
-        btn.BackgroundColor3 = Color3.fromRGB(0, 80, 160)
+        btn.BackgroundColor3 = color or Color3.fromRGB(10, 15, 30)
         pcall(callback)
     end)
     
@@ -371,244 +521,337 @@ local function createButton(parent, y, text, callback)
 end
 
 -- ==============================================
--- STATUS LABEL
+-- STATUS CARD (MODERN BLUE)
 -- ==============================================
-local statusLabel = Instance.new("TextLabel")
-statusLabel.Size = UDim2.new(0.9, 0, 0, 22)
-statusLabel.Position = UDim2.new(0.05, 0, 0, 5)
-statusLabel.BackgroundColor3 = Color3.fromRGB(0, 40, 80)
-statusLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
-statusLabel.Text = "● READY"
-statusLabel.TextSize = 11
+local statusCard = Instance.new("Frame")
+statusCard.Size = UDim2.new(0.9, 0, 0, 50)
+statusCard.Position = UDim2.new(0.05, 0, 0, 5)
+statusCard.BackgroundColor3 = Color3.fromRGB(8, 12, 25)
+statusCard.BorderColor3 = Color3.fromRGB(0, 150, 255)
+statusCard.BorderSizePixel = 1
+statusCard.Parent = content
+
+local statusCorner = Instance.new("UICorner")
+statusCorner.CornerRadius = UDim.new(0, 10)
+statusCorner.Parent = statusCard
+
+-- Status icon
+local statusIcon = Instance.new("TextLabel")
+statusIcon.Size = UDim2.new(0, 25, 1, 0)
+statusIcon.Position = UDim2.new(0, 10, 0, 0)
+statusIcon.BackgroundTransparency = 1
+statusIcon.Text = "●"
+statusIcon.TextColor3 = Color3.fromRGB(150, 150, 150)
+statusIcon.TextSize = 20
+statusIcon.Font = Enum.Font.GothamBold
+statusIcon.Parent = statusCard
+
+-- Status label
+statusLabel = Instance.new("TextLabel")
+statusLabel.Size = UDim2.new(0.5, 0, 0.5, 0)
+statusLabel.Position = UDim2.new(0, 40, 0, 8)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = "STANDBY"
+statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+statusLabel.TextSize = 14
 statusLabel.Font = Enum.Font.GothamBold
-statusLabel.Parent = content
+statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+statusLabel.Parent = statusCard
 
--- Remote Count
-local countLabel = Instance.new("TextLabel")
-countLabel.Size = UDim2.new(0.9, 0, 0, 18)
-countLabel.Position = UDim2.new(0.05, 0, 0, 30)
-countLabel.BackgroundTransparency = 1
-countLabel.TextColor3 = Color3.fromRGB(100, 150, 255)
-countLabel.Text = "RemoteEvents: 0"
-countLabel.TextSize = 10
-countLabel.Font = Enum.Font.Gotham
-countLabel.TextXAlignment = Enum.TextXAlignment.Left
-countLabel.Parent = content
+-- Remote count
+local remoteCount = Instance.new("TextLabel")
+remoteCount.Size = UDim2.new(0.3, 0, 0.5, 0)
+remoteCount.Position = UDim2.new(0.7, 0, 0, 8)
+remoteCount.BackgroundTransparency = 1
+remoteCount.Text = "0"
+remoteCount.TextColor3 = Color3.fromRGB(0, 200, 255)
+remoteCount.TextSize = 20
+remoteCount.Font = Enum.Font.GothamBold
+remoteCount.TextXAlignment = Enum.TextXAlignment.Right
+remoteCount.Parent = statusCard
+
+local remoteLabel = Instance.new("TextLabel")
+remoteLabel.Size = UDim2.new(0.3, 0, 0.3, 0)
+remoteLabel.Position = UDim2.new(0.7, 0, 0, 28)
+remoteLabel.BackgroundTransparency = 1
+remoteLabel.Text = "remotes"
+remoteLabel.TextColor3 = Color3.fromRGB(100, 150, 255)
+remoteLabel.TextSize = 8
+remoteLabel.Font = Enum.Font.Gotham
+remoteLabel.TextXAlignment = Enum.TextXAlignment.Right
+remoteLabel.Parent = statusCard
 
 -- ==============================================
--- SPAM COUNT SLIDER
+-- SPAM COUNT SECTION (BLUE)
 -- ==============================================
 local countHeader = Instance.new("TextLabel")
 countHeader.Size = UDim2.new(0.9, 0, 0, 16)
-countHeader.Position = UDim2.new(0.05, 0, 0, 55)
+countHeader.Position = UDim2.new(0.05, 0, 0, 60)
 countHeader.BackgroundTransparency = 1
-countHeader.Text = "📊 SPAM COUNT: " .. config.spamCount
-countHeader.TextColor3 = Color3.fromRGB(150, 200, 255)
-countHeader.TextSize = 10
+countHeader.Text = "⚡ SPAM COUNT"
+countHeader.TextColor3 = Color3.fromRGB(100, 200, 255)
+countHeader.TextSize = 11
 countHeader.Font = Enum.Font.GothamBold
 countHeader.TextXAlignment = Enum.TextXAlignment.Left
 countHeader.Parent = content
 
 local countFrame = Instance.new("Frame")
-countFrame.Size = UDim2.new(0.9, 0, 0, 30)
-countFrame.Position = UDim2.new(0.05, 0, 0, 72)
-countFrame.BackgroundColor3 = Color3.fromRGB(10, 20, 35)
+countFrame.Size = UDim2.new(0.9, 0, 0, 35)
+countFrame.Position = UDim2.new(0.05, 0, 0, 77)
+countFrame.BackgroundColor3 = Color3.fromRGB(8, 12, 25)
 countFrame.BorderColor3 = Color3.fromRGB(0, 150, 255)
 countFrame.BorderSizePixel = 1
 countFrame.Parent = content
 
-local countOptions = {50, 100, 200, 500, 999}
-local countBtns = {}
+local countFrameCorner = Instance.new("UICorner")
+countFrameCorner.CornerRadius = UDim.new(0, 8)
+countFrameCorner.Parent = countFrame
 
+local countOptions = {50, 100, 200, 500, 999}
 for i, val in ipairs(countOptions) do
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.18, -2, 0, 22)
-    btn.Position = UDim2.new((i-1) * 0.2, 2, 0.5, -11)
-    btn.BackgroundColor3 = (val == config.spamCount) and Color3.fromRGB(0, 120, 200) or Color3.fromRGB(30, 50, 70)
+    btn.Size = UDim2.new(0.18, -2, 0, 25)
+    btn.Position = UDim2.new((i-1) * 0.2, 2, 0.5, -12)
+    btn.BackgroundColor3 = (val == config.spamCount) and Color3.fromRGB(0, 100, 255) or Color3.fromRGB(10, 20, 40)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Text = tostring(val)
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 10
+    btn.TextSize = 11
     btn.Parent = countFrame
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 5)
+    btnCorner.Parent = btn
     
     btn.MouseButton1Click:Connect(function()
         config.spamCount = val
-        countHeader.Text = "📊 SPAM COUNT: " .. val
-        for _, b in ipairs(countBtns) do
-            b.BackgroundColor3 = Color3.fromRGB(30, 50, 70)
+        countHeader.Text = "⚡ SPAM COUNT: " .. val
+        for _, child in ipairs(countFrame:GetChildren()) do
+            if child:IsA("TextButton") then
+                child.BackgroundColor3 = Color3.fromRGB(10, 20, 40)
+            end
         end
-        btn.BackgroundColor3 = Color3.fromRGB(0, 120, 200)
+        btn.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
     end)
-    
-    table.insert(countBtns, btn)
 end
 
 -- ==============================================
--- DELAY SLIDER
+-- DELAY SECTION (BLUE)
 -- ==============================================
 local delayHeader = Instance.new("TextLabel")
 delayHeader.Size = UDim2.new(0.9, 0, 0, 16)
-delayHeader.Position = UDim2.new(0.05, 0, 0, 110)
+delayHeader.Position = UDim2.new(0.05, 0, 0, 120)
 delayHeader.BackgroundTransparency = 1
-delayHeader.Text = "⏱️ DELAY: " .. config.spamDelay .. "s"
-delayHeader.TextColor3 = Color3.fromRGB(150, 200, 255)
-delayHeader.TextSize = 10
+delayHeader.Text = "⏱️ DELAY"
+delayHeader.TextColor3 = Color3.fromRGB(100, 200, 255)
+delayHeader.TextSize = 11
 delayHeader.Font = Enum.Font.GothamBold
 delayHeader.TextXAlignment = Enum.TextXAlignment.Left
 delayHeader.Parent = content
 
 local delayFrame = Instance.new("Frame")
-delayFrame.Size = UDim2.new(0.9, 0, 0, 30)
-delayFrame.Position = UDim2.new(0.05, 0, 0, 127)
-delayFrame.BackgroundColor3 = Color3.fromRGB(10, 20, 35)
+delayFrame.Size = UDim2.new(0.9, 0, 0, 35)
+delayFrame.Position = UDim2.new(0.05, 0, 0, 137)
+delayFrame.BackgroundColor3 = Color3.fromRGB(8, 12, 25)
 delayFrame.BorderColor3 = Color3.fromRGB(0, 150, 255)
 delayFrame.BorderSizePixel = 1
 delayFrame.Parent = content
 
-local delayOptions = {0.01, 0.03, 0.05, 0.1, 0.2}
-local delayBtns = {}
+local delayFrameCorner = Instance.new("UICorner")
+delayFrameCorner.CornerRadius = UDim.new(0, 8)
+delayFrameCorner.Parent = delayFrame
 
+local delayOptions = {0.01, 0.03, 0.05, 0.1, 0.2}
 for i, val in ipairs(delayOptions) do
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.18, -2, 0, 22)
-    btn.Position = UDim2.new((i-1) * 0.2, 2, 0.5, -11)
-    btn.BackgroundColor3 = (val == config.spamDelay) and Color3.fromRGB(0, 120, 200) or Color3.fromRGB(30, 50, 70)
+    btn.Size = UDim2.new(0.18, -2, 0, 25)
+    btn.Position = UDim2.new((i-1) * 0.2, 2, 0.5, -12)
+    btn.BackgroundColor3 = (val == config.spamDelay) and Color3.fromRGB(0, 100, 255) or Color3.fromRGB(10, 20, 40)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Text = val .. "s"
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 9
+    btn.TextSize = 10
     btn.Parent = delayFrame
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 5)
+    btnCorner.Parent = btn
     
     btn.MouseButton1Click:Connect(function()
         config.spamDelay = val
         delayHeader.Text = "⏱️ DELAY: " .. val .. "s"
-        for _, b in ipairs(delayBtns) do
-            b.BackgroundColor3 = Color3.fromRGB(30, 50, 70)
+        for _, child in ipairs(delayFrame:GetChildren()) do
+            if child:IsA("TextButton") then
+                child.BackgroundColor3 = Color3.fromRGB(10, 20, 40)
+            end
         end
-        btn.BackgroundColor3 = Color3.fromRGB(0, 120, 200)
+        btn.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
     end)
-    
-    table.insert(delayBtns, btn)
 end
 
 -- ==============================================
--- BROADCAST SECTION
+-- BROADCAST SECTION (BLUE)
 -- ==============================================
 local broadcastHeader = Instance.new("TextLabel")
 broadcastHeader.Size = UDim2.new(0.9, 0, 0, 16)
-broadcastHeader.Position = UDim2.new(0.05, 0, 0, 170)
+broadcastHeader.Position = UDim2.new(0.05, 0, 0, 180)
 broadcastHeader.BackgroundTransparency = 1
-broadcastHeader.Text = "📢 BROADCAST MODE"
-broadcastHeader.TextColor3 = Color3.fromRGB(150, 200, 255)
-broadcastHeader.TextSize = 10
+broadcastHeader.Text = "📢 BROADCAST"
+broadcastHeader.TextColor3 = Color3.fromRGB(100, 200, 255)
+broadcastHeader.TextSize = 11
 broadcastHeader.Font = Enum.Font.GothamBold
 broadcastHeader.TextXAlignment = Enum.TextXAlignment.Left
 broadcastHeader.Parent = content
 
--- Broadcast toggle button
+-- Broadcast toggle (modern switch)
+local toggleFrame = Instance.new("Frame")
+toggleFrame.Size = UDim2.new(0.9, 0, 0, 30)
+toggleFrame.Position = UDim2.new(0.05, 0, 0, 197)
+toggleFrame.BackgroundColor3 = Color3.fromRGB(8, 12, 25)
+toggleFrame.BorderColor3 = Color3.fromRGB(0, 150, 255)
+toggleFrame.BorderSizePixel = 1
+toggleFrame.Parent = content
+
+local toggleFrameCorner = Instance.new("UICorner")
+toggleFrameCorner.CornerRadius = UDim.new(0, 8)
+toggleFrameCorner.Parent = toggleFrame
+
+local toggleLabel = Instance.new("TextLabel")
+toggleLabel.Size = UDim2.new(0.5, 0, 1, 0)
+toggleLabel.Position = UDim2.new(0, 10, 0, 0)
+toggleLabel.BackgroundTransparency = 1
+toggleLabel.Text = "Broadcast Mode"
+toggleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+toggleLabel.TextSize = 11
+toggleLabel.Font = Enum.Font.Gotham
+toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+toggleLabel.Parent = toggleFrame
+
 local broadcastToggle = Instance.new("TextButton")
-broadcastToggle.Size = UDim2.new(0.4, 0, 0, 24)
-broadcastToggle.Position = UDim2.new(0.05, 0, 0, 187)
-broadcastToggle.BackgroundColor3 = broadcastEnabled and Color3.fromRGB(0, 150, 50) or Color3.fromRGB(80, 80, 80)
+broadcastToggle.Size = UDim2.new(0, 50, 0, 22)
+broadcastToggle.Position = UDim2.new(1, -60, 0.5, -11)
+broadcastToggle.BackgroundColor3 = broadcastEnabled and Color3.fromRGB(0, 100, 255) or Color3.fromRGB(20, 30, 50)
 broadcastToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
 broadcastToggle.Text = broadcastEnabled and "ON" or "OFF"
 broadcastToggle.Font = Enum.Font.GothamBold
-broadcastToggle.TextSize = 11
-broadcastToggle.Parent = content
+broadcastToggle.TextSize = 10
+broadcastToggle.Parent = toggleFrame
+
+local toggleBtnCorner = Instance.new("UICorner")
+toggleBtnCorner.CornerRadius = UDim.new(0, 4)
+toggleBtnCorner.Parent = broadcastToggle
 
 broadcastToggle.MouseButton1Click:Connect(function()
     broadcastEnabled = not broadcastEnabled
-    broadcastToggle.BackgroundColor3 = broadcastEnabled and Color3.fromRGB(0, 150, 50) or Color3.fromRGB(80, 80, 80)
+    broadcastToggle.BackgroundColor3 = broadcastEnabled and Color3.fromRGB(0, 100, 255) or Color3.fromRGB(20, 30, 50)
     broadcastToggle.Text = broadcastEnabled and "ON" or "OFF"
-    notify("Broadcast: " .. (broadcastEnabled and "ON" or "OFF"))
 end)
 
--- Broadcast message input
-local messageHeader = Instance.new("TextLabel")
-messageHeader.Size = UDim2.new(0.9, 0, 0, 14)
-messageHeader.Position = UDim2.new(0.05, 0, 0, 215)
-messageHeader.BackgroundTransparency = 1
-messageHeader.Text = "MESSAGE:"
-messageHeader.TextColor3 = Color3.fromRGB(150, 200, 255)
-messageHeader.TextSize = 9
-messageHeader.Font = Enum.Font.Gotham
-messageHeader.TextXAlignment = Enum.TextXAlignment.Left
-messageHeader.Parent = content
+-- Message input
+local msgFrame = Instance.new("Frame")
+msgFrame.Size = UDim2.new(0.9, 0, 0, 40)
+msgFrame.Position = UDim2.new(0.05, 0, 0, 232)
+msgFrame.BackgroundColor3 = Color3.fromRGB(8, 12, 25)
+msgFrame.BorderColor3 = Color3.fromRGB(0, 150, 255)
+msgFrame.BorderSizePixel = 1
+msgFrame.Parent = content
+
+local msgFrameCorner = Instance.new("UICorner")
+msgFrameCorner.CornerRadius = UDim.new(0, 8)
+msgFrameCorner.Parent = msgFrame
+
+local msgLabel = Instance.new("TextLabel")
+msgLabel.Size = UDim2.new(0.2, 0, 1, 0)
+msgLabel.Position = UDim2.new(0, 8, 0, 0)
+msgLabel.BackgroundTransparency = 1
+msgLabel.Text = "💬"
+msgLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+msgLabel.TextSize = 20
+msgLabel.Font = Enum.Font.GothamBold
+msgLabel.Parent = msgFrame
 
 local messageBox = Instance.new("TextBox")
-messageBox.Size = UDim2.new(0.9, 0, 0, 24)
-messageBox.Position = UDim2.new(0.05, 0, 0, 230)
-messageBox.BackgroundColor3 = Color3.fromRGB(15, 25, 40)
+messageBox.Size = UDim2.new(0.75, -10, 0, 26)
+messageBox.Position = UDim2.new(0.25, 0, 0.5, -13)
+messageBox.BackgroundColor3 = Color3.fromRGB(10, 15, 30)
+messageBox.BorderColor3 = Color3.fromRGB(0, 150, 255)
+messageBox.BorderSizePixel = 1
 messageBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-messageBox.PlaceholderColor3 = Color3.fromRGB(100, 150, 200)
-messageBox.PlaceholderText = "Enter broadcast message..."
+messageBox.PlaceholderColor3 = Color3.fromRGB(100, 150, 255)
+messageBox.PlaceholderText = "Enter message..."
 messageBox.Text = broadcastMessage
 messageBox.Font = Enum.Font.Gotham
 messageBox.TextSize = 10
 messageBox.ClearTextOnFocus = false
-messageBox.Parent = content
+messageBox.Parent = msgFrame
+
+local msgBoxCorner = Instance.new("UICorner")
+msgBoxCorner.CornerRadius = UDim.new(0, 5)
+msgBoxCorner.Parent = messageBox
 
 messageBox.FocusLost:Connect(function()
     if messageBox.Text ~= "" then
         broadcastMessage = messageBox.Text
-        notify("Message set to: " .. broadcastMessage)
     end
 end)
 
 -- ==============================================
--- ACTION BUTTONS
+-- ACTION BUTTONS (BLUE THEME)
 -- ==============================================
-createButton(content, 265, "🔍 SCAN ALL REMOTES", function()
+createModernButton(content, 280, "🔍", "SCAN REMOTES", "Find all RemoteEvents", nil, function()
     local found = scanAllRemotes()
-    countLabel.Text = "RemoteEvents: " .. #found
-    statusLabel.Text = "● FOUND " .. #found
+    remoteCount.Text = #found
+    statusLabel.Text = "FOUND " .. #found
     refreshRemoteList()
 end)
 
-createButton(content, 295, "💥 SPAM ALL REMOTES", function()
+createModernButton(content, 330, "💥", "SPAM ALL", "Start brutal spam", Color3.fromRGB(10, 20, 40), function()
     if #remoteEvents == 0 then
         notify("❌ Scan dulu")
         return
     end
     spamAllRemotes()
-    statusLabel.Text = broadcastEnabled and "● BROADCASTING" or "● SPAMMING ALL"
 end)
 
-createButton(content, 325, "⏹️ STOP ALL", function()
+createModernButton(content, 380, "⏹️", "STOP ALL", "Stop all spam", Color3.fromRGB(10, 15, 30), function()
     stopSpam()
-    statusLabel.Text = "● STOPPED"
+    remoteCount.Text = #remoteEvents
 end)
 
-createButton(content, 355, "🔄 AUTO SCAN+SPAM", function()
+createModernButton(content, 430, "🔄", "AUTO MODE", "Scan + Spam auto", nil, function()
     scanAllRemotes()
     task.wait(0.5)
     spamAllRemotes()
 end)
 
 -- ==============================================
--- REMOTE LIST
+-- REMOTE LIST (BLUE THEME)
 -- ==============================================
 local listHeader = Instance.new("TextLabel")
-listHeader.Size = UDim2.new(0.9, 0, 0, 16)
-listHeader.Position = UDim2.new(0.05, 0, 0, 400)
+listHeader.Size = UDim2.new(0.9, 0, 0, 20)
+listHeader.Position = UDim2.new(0.05, 0, 0, 490)
 listHeader.BackgroundTransparency = 1
-listHeader.Text = "📋 REMOTE EVENTS"
+listHeader.Text = "📡 REMOTE EVENTS"
 listHeader.TextColor3 = Color3.fromRGB(100, 200, 255)
-listHeader.TextSize = 10
+listHeader.TextSize = 11
 listHeader.Font = Enum.Font.GothamBold
 listHeader.TextXAlignment = Enum.TextXAlignment.Left
 listHeader.Parent = content
 
-local listFrame = Instance.new("Frame")
-listFrame.Size = UDim2.new(0.9, 0, 0, 70)
-listFrame.Position = UDim2.new(0.05, 0, 0, 420)
-listFrame.BackgroundColor3 = Color3.fromRGB(0, 25, 45)
-listFrame.BorderColor3 = Color3.fromRGB(0, 150, 255)
-listFrame.BorderSizePixel = 1
-listFrame.Parent = content
+local listBg = Instance.new("Frame")
+listBg.Size = UDim2.new(0.9, 0, 0, 70)
+listBg.Position = UDim2.new(0.05, 0, 0, 510)
+listBg.BackgroundColor3 = Color3.fromRGB(6, 10, 20)
+listBg.BorderColor3 = Color3.fromRGB(0, 150, 255)
+listBg.BorderSizePixel = 1
+listBg.Parent = content
+
+local listBgCorner = Instance.new("UICorner")
+listBgCorner.CornerRadius = UDim.new(0, 8)
+listBgCorner.Parent = listBg
 
 function refreshRemoteList()
-    for _, child in ipairs(listFrame:GetChildren()) do
+    for _, child in ipairs(listBg:GetChildren()) do
         if child:IsA("TextLabel") then
             child:Destroy()
         end
@@ -622,11 +865,11 @@ function refreshRemoteList()
             more.Position = UDim2.new(0, 4, 0, yPos)
             more.BackgroundTransparency = 1
             more.Text = "..." .. (#remoteEvents - 4) .. " more"
-            more.TextColor3 = Color3.fromRGB(100, 150, 200)
-            more.TextSize = 8
+            more.TextColor3 = Color3.fromRGB(100, 150, 255)
+            more.TextSize = 9
             more.Font = Enum.Font.Gotham
             more.TextXAlignment = Enum.TextXAlignment.Left
-            more.Parent = listFrame
+            more.Parent = listBg
             break
         end
         
@@ -636,10 +879,10 @@ function refreshRemoteList()
         item.BackgroundTransparency = 1
         item.Text = remote.name
         item.TextColor3 = Color3.fromRGB(150, 200, 255)
-        item.TextSize = 8
+        item.TextSize = 9
         item.Font = Enum.Font.Gotham
         item.TextXAlignment = Enum.TextXAlignment.Left
-        item.Parent = listFrame
+        item.Parent = listBg
         
         yPos = yPos + 16
     end
@@ -649,11 +892,11 @@ function refreshRemoteList()
         empty.Size = UDim2.new(1, -8, 0, 20)
         empty.Position = UDim2.new(0, 4, 0, 25)
         empty.BackgroundTransparency = 1
-        empty.Text = "No RemoteEvents"
-        empty.TextColor3 = Color3.fromRGB(100, 150, 200)
-        empty.TextSize = 9
+        empty.Text = "No RemoteEvents found"
+        empty.TextColor3 = Color3.fromRGB(100, 150, 255)
+        empty.TextSize = 10
         empty.Font = Enum.Font.Gotham
-        empty.Parent = listFrame
+        empty.Parent = listBg
     end
 end
 
@@ -673,5 +916,21 @@ task.wait(1)
 scanAllRemotes()
 refreshRemoteList()
 
-print("✅ FIQQZR7 REMOTE SPAMMER - DENGAN BROADCAST!")
-print("🔵 Found " .. #remoteEvents .. " RemoteEvents")
+-- Glow animation for title (BLUE)
+spawn(function()
+    while true do
+        for i = 1, 10 do
+            glow.BackgroundTransparency = 0.8 - (i * 0.03)
+            innerGlow.BackgroundTransparency = 0.7 - (i * 0.02)
+            task.wait(0.03)
+        end
+        for i = 1, 10 do
+            glow.BackgroundTransparency = 0.5 + (i * 0.03)
+            innerGlow.BackgroundTransparency = 0.5 + (i * 0.02)
+            task.wait(0.03)
+        end
+    end
+end)
+
+print("✅ FIQQZR7 BRUTAL FIRE - MODERN ULTRA EDITION (BLUE THEME)")
+print("🔥 UI dengan glass morphism + neon glow")
