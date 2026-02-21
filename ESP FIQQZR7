@@ -1,0 +1,632 @@
+-- FIQQZR7 ESP - MODERN HUB (BIRU UI + BOX PUTIH + LINE HIJAU)
+local player = game.Players.LocalPlayer
+
+repeat task.wait() until player and player:FindFirstChild("PlayerGui")
+
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+-- ESP State
+local ESP = { Box = false, Health = false, Name = false, HeadCircle = false, Line = false }
+local ESPObjects = {}
+local HEALTHBAR_WIDTH = 3
+local uiVisible = true
+
+-- ==============================================
+-- MODERN UI SETUP (GLASSMORPHISM + NEON BIRU)
+-- ==============================================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FIQQZR7_ESP"
+ScreenGui.Parent = player.PlayerGui
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Main Container
+local Container = Instance.new("Frame")
+Container.Size = UDim2.new(0, 280, 0, 360)
+Container.Position = UDim2.new(0, 20, 0.5, -180)
+Container.BackgroundTransparency = 1
+Container.Active = true
+Container.Draggable = true
+Container.Parent = ScreenGui
+
+-- Main Frame (Glass Effect)
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(1, 0, 1, 0)
+Main.Position = UDim2.new(0, 0, 0, 0)
+Main.BackgroundColor3 = Color3.fromRGB(8, 12, 20)
+Main.BackgroundTransparency = 0.1
+Main.BorderColor3 = Color3.fromRGB(0, 150, 255)
+Main.BorderSizePixel = 2
+Main.ClipsDescendants = true
+Main.Parent = Container
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 16)
+MainCorner.Parent = Main
+
+-- Glass Blur Effect
+local Blur = Instance.new("Frame")
+Blur.Size = UDim2.new(1, 0, 1, 0)
+Blur.BackgroundColor3 = Color3.fromRGB(10, 15, 25)
+Blur.BackgroundTransparency = 0.6
+Blur.BorderSizePixel = 0
+Blur.ZIndex = 0
+Blur.Parent = Main
+
+local BlurCorner = Instance.new("UICorner")
+BlurCorner.CornerRadius = UDim.new(0, 16)
+BlurCorner.Parent = Blur
+
+-- Neon Glow Border (BIRU)
+local Glow = Instance.new("Frame")
+Glow.Size = UDim2.new(1, 8, 1, 8)
+Glow.Position = UDim2.new(0, -4, 0, -4)
+Glow.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
+Glow.BackgroundTransparency = 0.8
+Glow.BorderSizePixel = 0
+Glow.ZIndex = 0
+Glow.Parent = Container
+
+local GlowCorner = Instance.new("UICorner")
+GlowCorner.CornerRadius = UDim.new(0, 18)
+GlowCorner.Parent = Glow
+
+-- Inner Glow
+local InnerGlow = Instance.new("Frame")
+InnerGlow.Size = UDim2.new(1, 4, 1, 4)
+InnerGlow.Position = UDim2.new(0, -2, 0, -2)
+InnerGlow.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+InnerGlow.BackgroundTransparency = 0.7
+InnerGlow.BorderSizePixel = 0
+InnerGlow.ZIndex = 0
+InnerGlow.Parent = Container
+
+local InnerGlowCorner = Instance.new("UICorner")
+InnerGlowCorner.CornerRadius = UDim.new(0, 17)
+InnerGlowCorner.Parent = InnerGlow
+
+-- Gradient Background
+local Gradient = Instance.new("UIGradient")
+Gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 20, 40)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(5, 15, 35)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 10, 30))
+})
+Gradient.Rotation = 45
+Gradient.Parent = Main
+
+-- ==============================================
+-- TITLE BAR (BIRU)
+-- ==============================================
+local TitleBar = Instance.new("Frame")
+TitleBar.Size = UDim2.new(1, -16, 0, 50)
+TitleBar.Position = UDim2.new(0, 8, 0, 8)
+TitleBar.BackgroundColor3 = Color3.fromRGB(10, 15, 30)
+TitleBar.BackgroundTransparency = 0.3
+TitleBar.BorderColor3 = Color3.fromRGB(0, 150, 255)
+TitleBar.BorderSizePixel = 1
+TitleBar.Parent = Main
+
+local TitleBarCorner = Instance.new("UICorner")
+TitleBarCorner.CornerRadius = UDim.new(0, 12)
+TitleBarCorner.Parent = TitleBar
+
+-- Icon
+local Icon = Instance.new("TextLabel")
+Icon.Size = UDim2.new(0, 40, 1, 0)
+Icon.Position = UDim2.new(0, 8, 0, 0)
+Icon.BackgroundTransparency = 1
+Icon.Text = "👁️"
+Icon.TextColor3 = Color3.fromRGB(0, 200, 255)
+Icon.TextSize = 22
+Icon.Font = Enum.Font.GothamBold
+Icon.Parent = TitleBar
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(0.6, 0, 1, 0)
+Title.Position = UDim2.new(0, 50, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "FIQQZR7 ESP"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 16
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = TitleBar
+
+-- Hide Button
+local HideBtn = Instance.new("TextButton")
+HideBtn.Size = UDim2.new(0, 28, 0, 28)
+HideBtn.Position = UDim2.new(1, -65, 0.5, -14)
+HideBtn.BackgroundColor3 = Color3.fromRGB(10, 25, 45)
+HideBtn.BorderColor3 = Color3.fromRGB(0, 150, 255)
+HideBtn.BorderSizePixel = 1
+HideBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+HideBtn.Text = "−"
+HideBtn.Font = Enum.Font.GothamBold
+HideBtn.TextSize = 18
+HideBtn.Parent = TitleBar
+
+local HideCorner = Instance.new("UICorner")
+HideCorner.CornerRadius = UDim.new(0, 8)
+HideCorner.Parent = HideBtn
+
+-- Close Button
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 28, 0, 28)
+CloseBtn.Position = UDim2.new(1, -32, 0.5, -14)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(40, 20, 45)
+CloseBtn.BorderColor3 = Color3.fromRGB(0, 150, 255)
+CloseBtn.BorderSizePixel = 1
+CloseBtn.TextColor3 = Color3.fromRGB(255, 80, 80)
+CloseBtn.Text = "✕"
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 14
+CloseBtn.Parent = TitleBar
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 8)
+CloseCorner.Parent = CloseBtn
+
+-- ==============================================
+-- CONTENT CONTAINER
+-- ==============================================
+local ContentContainer = Instance.new("Frame")
+ContentContainer.Size = UDim2.new(1, -16, 1, -70)
+ContentContainer.Position = UDim2.new(0, 8, 0, 62)
+ContentContainer.BackgroundTransparency = 1
+ContentContainer.Parent = Main
+
+-- ==============================================
+-- SCROLLING FRAME
+-- ==============================================
+local ScrollingFrame = Instance.new("ScrollingFrame")
+ScrollingFrame.Size = UDim2.new(1, 0, 1, 0)
+ScrollingFrame.BackgroundTransparency = 1
+ScrollingFrame.BorderSizePixel = 0
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 300)
+ScrollingFrame.ScrollBarThickness = 4
+ScrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 150, 255)
+ScrollingFrame.Parent = ContentContainer
+
+-- ==============================================
+-- MODERN TOGGLE CARD FUNCTION (UI BIRU)
+-- ==============================================
+local function createModernToggle(y, icon, title, desc, stateRef, stateKey)
+    -- Main Card (BIRU)
+    local Card = Instance.new("Frame")
+    Card.Size = UDim2.new(0.95, 0, 0, 55)
+    Card.Position = UDim2.new(0.025, 0, 0, y)
+    Card.BackgroundColor3 = Color3.fromRGB(10, 15, 30)
+    Card.BorderColor3 = Color3.fromRGB(0, 150, 255)
+    Card.BorderSizePixel = 1
+    Card.Parent = ScrollingFrame
+
+    local CardCorner = Instance.new("UICorner")
+    CardCorner.CornerRadius = UDim.new(0, 12)
+    CardCorner.Parent = Card
+
+    -- Inner gradient (BIRU)
+    local CardGradient = Instance.new("UIGradient")
+    CardGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 20, 35)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(8, 12, 25))
+    })
+    CardGradient.Rotation = 90
+    CardGradient.Parent = Card
+
+    -- Icon (BIRU)
+    local IconLabel = Instance.new("TextLabel")
+    IconLabel.Size = UDim2.new(0, 40, 1, 0)
+    IconLabel.Position = UDim2.new(0, 8, 0, 0)
+    IconLabel.BackgroundTransparency = 1
+    IconLabel.Text = icon
+    IconLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+    IconLabel.TextSize = 24
+    IconLabel.Font = Enum.Font.GothamBold
+    IconLabel.Parent = Card
+
+    -- Title (PUTIH)
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Size = UDim2.new(0.5, 0, 0.5, 0)
+    TitleLabel.Position = UDim2.new(0, 55, 0, 8)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Text = title
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.TextSize = 14
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.Parent = Card
+
+    -- Description (BIRU MUDA)
+    local DescLabel = Instance.new("TextLabel")
+    DescLabel.Size = UDim2.new(0.5, 0, 0.3, 0)
+    DescLabel.Position = UDim2.new(0, 55, 0, 30)
+    DescLabel.BackgroundTransparency = 1
+    DescLabel.Text = desc
+    DescLabel.TextColor3 = Color3.fromRGB(140, 180, 255)
+    DescLabel.TextSize = 10
+    DescLabel.Font = Enum.Font.Gotham
+    DescLabel.TextXAlignment = Enum.TextXAlignment.Left
+    DescLabel.Parent = Card
+
+    -- Toggle Switch (BIRU)
+    local ToggleBg = Instance.new("Frame")
+    ToggleBg.Size = UDim2.new(0, 50, 0, 24)
+    ToggleBg.Position = UDim2.new(1, -60, 0.5, -12)
+    ToggleBg.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+    ToggleBg.BorderColor3 = Color3.fromRGB(0, 150, 255)
+    ToggleBg.BorderSizePixel = 1
+    ToggleBg.Parent = Card
+
+    local ToggleCorner = Instance.new("UICorner")
+    ToggleCorner.CornerRadius = UDim.new(0, 12)
+    ToggleCorner.Parent = ToggleBg
+
+    -- Toggle Indicator (BIRU)
+    local ToggleIndicator = Instance.new("Frame")
+    ToggleIndicator.Size = UDim2.new(0, 20, 0, 20)
+    ToggleIndicator.Position = UDim2.new(0, 2, 0.5, -10)
+    ToggleIndicator.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+    ToggleIndicator.Parent = ToggleBg
+
+    local IndicatorCorner = Instance.new("UICorner")
+    IndicatorCorner.CornerRadius = UDim.new(0, 10)
+    IndicatorCorner.Parent = ToggleIndicator
+
+    -- Click Button
+    local ClickBtn = Instance.new("TextButton")
+    ClickBtn.Size = UDim2.new(1, 0, 1, 0)
+    ClickBtn.BackgroundTransparency = 1
+    ClickBtn.Text = ""
+    ClickBtn.Parent = Card
+
+    -- Toggle Function
+    local function updateToggle()
+        local state = stateRef[stateKey]
+        if state then
+            ToggleIndicator.BackgroundColor3 = Color3.fromRGB(0, 200, 255) -- BIRU terang
+            TweenService:Create(ToggleIndicator, TweenInfo.new(0.2), {Position = UDim2.new(1, -22, 0.5, -10)}):Play()
+            ToggleBg.BackgroundColor3 = Color3.fromRGB(0, 40, 70)
+        else
+            ToggleIndicator.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+            TweenService:Create(ToggleIndicator, TweenInfo.new(0.2), {Position = UDim2.new(0, 2, 0.5, -10)}):Play()
+            ToggleBg.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+        end
+    end
+
+    updateToggle()
+    
+    ClickBtn.MouseButton1Click:Connect(function()
+        stateRef[stateKey] = not stateRef[stateKey]
+        updateToggle()
+    end)
+
+    return Card
+end
+
+-- Create all toggle options (UI BIRU)
+createModernToggle(5, "📦", "BOX ESP", "MASIH ERROR GES", ESP, "Box")
+createModernToggle(65, "❤️", "HEALTH BAR", "Show health", ESP, "Health")
+createModernToggle(125, "🏷️", "NAME TAG", "Show player names", ESP, "Name")
+createModernToggle(185, "⭕", "HEAD CIRCLE", "Show head indicator", ESP, "HeadCircle")
+createModernToggle(245, "📏", "LINE ESP", "Draw line to target", ESP, "Line")
+
+-- ==============================================
+-- STATUS CARD (BIRU)
+-- ==============================================
+local StatusCard = Instance.new("Frame")
+StatusCard.Size = UDim2.new(0.95, 0, 0, 45)
+StatusCard.Position = UDim2.new(0.025, 0, 0, 310)
+StatusCard.BackgroundColor3 = Color3.fromRGB(10, 15, 30)
+StatusCard.BorderColor3 = Color3.fromRGB(0, 150, 255)
+StatusCard.BorderSizePixel = 1
+StatusCard.Parent = ScrollingFrame
+
+local StatusCorner = Instance.new("UICorner")
+StatusCorner.CornerRadius = UDim.new(0, 12)
+StatusCorner.Parent = StatusCard
+
+local StatusGradient = Instance.new("UIGradient")
+StatusGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 20, 35)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(8, 12, 25))
+})
+StatusGradient.Rotation = 90
+StatusGradient.Parent = StatusCard
+
+local StatusIcon = Instance.new("TextLabel")
+StatusIcon.Size = UDim2.new(0, 35, 1, 0)
+StatusIcon.Position = UDim2.new(0, 8, 0, 0)
+StatusIcon.BackgroundTransparency = 1
+StatusIcon.Text = "👥"
+StatusIcon.TextColor3 = Color3.fromRGB(0, 200, 255) -- BIRU
+StatusIcon.TextSize = 20
+StatusIcon.Font = Enum.Font.GothamBold
+StatusIcon.Parent = StatusCard
+
+local StatusTitle = Instance.new("TextLabel")
+StatusTitle.Size = UDim2.new(0.4, 0, 0.5, 0)
+StatusTitle.Position = UDim2.new(0, 50, 0, 6)
+StatusTitle.BackgroundTransparency = 1
+StatusTitle.Text = "PLAYERS"
+StatusTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+StatusTitle.TextSize = 12
+StatusTitle.Font = Enum.Font.GothamBold
+StatusTitle.TextXAlignment = Enum.TextXAlignment.Left
+StatusTitle.Parent = StatusCard
+
+local PlayerCount = Instance.new("TextLabel")
+PlayerCount.Size = UDim2.new(0.4, 0, 0.5, 0)
+PlayerCount.Position = UDim2.new(0.6, 0, 0, 12)
+PlayerCount.BackgroundTransparency = 1
+PlayerCount.Text = tostring(#Players:GetPlayers() - 1)
+PlayerCount.TextColor3 = Color3.fromRGB(0, 200, 255) -- BIRU
+PlayerCount.TextSize = 18
+PlayerCount.Font = Enum.Font.GothamBold
+PlayerCount.TextXAlignment = Enum.TextXAlignment.Right
+PlayerCount.Parent = StatusCard
+
+-- ==============================================
+-- MINIMIZE FUNCTION
+-- ==============================================
+HideBtn.MouseButton1Click:Connect(function()
+    uiVisible = not uiVisible
+    
+    if uiVisible then
+        TweenService:Create(Container, TweenInfo.new(0.3), {Size = UDim2.new(0, 280, 0, 360)}):Play()
+        task.wait(0.1)
+        ContentContainer.Visible = true
+        HideBtn.Text = "−"
+        HideBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    else
+        ContentContainer.Visible = false
+        TweenService:Create(Container, TweenInfo.new(0.3), {Size = UDim2.new(0, 280, 0, 50)}):Play()
+        HideBtn.Text = "+"
+        HideBtn.TextColor3 = Color3.fromRGB(0, 200, 255)
+    end
+end)
+
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- ==============================================
+-- INSERT KEY TOGGLE
+-- ==============================================
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Insert then
+        if Container.Visible then
+            Container.Visible = false
+        else
+            Container.Visible = true
+        end
+    end
+end)
+
+-- ==============================================
+-- RAINBOW WATERMARK (MODERN)
+-- ==============================================
+local Watermark = Drawing.new("Text")
+Watermark.Visible = true
+Watermark.Center = true
+Watermark.Outline = true
+Watermark.Size = 14
+Watermark.Font = 3
+Watermark.Text = "FIQQZR7 ESP • MODERN"
+
+local hue = 0
+RunService.RenderStepped:Connect(function()
+    hue = (hue + 0.002) % 1
+    local r, g, b = Color3.fromHSV(hue, 1, 1):ToRGB()
+    Watermark.Color = Color3.fromRGB(r, g, b)
+    local vp = Camera.ViewportSize
+    Watermark.Position = Vector2.new(vp.X / 2, vp.Y - 30)
+end)
+
+-- ==============================================
+-- ESP DRAWING ENGINE (BOX PUTIH + SEMUA HIJAU)
+-- ==============================================
+local function createESP(targetPlayer)
+    if targetPlayer == LocalPlayer then return end
+    
+    -- Create drawing objects
+    local box = Drawing.new("Square")
+    local outline = Drawing.new("Square")
+    local nameTag = Drawing.new("Text")
+    local healthBar = Drawing.new("Square")
+    local healthOutline = Drawing.new("Square")
+    local headCircle = Drawing.new("Circle")
+    local lineESP = Drawing.new("Line")
+
+    -- Initialize visibility
+    box.Visible = false
+    outline.Visible = false
+    nameTag.Visible = false
+    healthBar.Visible = false
+    healthOutline.Visible = false
+    headCircle.Visible = false
+    lineESP.Visible = false
+
+    -- ===== BOX = PUTIH (dengan outline hitam) =====
+    box.Color = Color3.fromRGB(255, 255, 255)    -- PUTIH
+    box.Thickness = 2
+    box.Filled = false
+    box.Transparency = 1
+
+    outline.Color = Color3.fromRGB(0, 0, 0)      -- HITAM (outline)
+    outline.Thickness = 3
+    outline.Filled = false
+    outline.Transparency = 1
+
+    -- ===== NAME = HIJAU =====
+    nameTag.Center = true
+    nameTag.Outline = true
+    nameTag.Font = 3
+    nameTag.Size = 14
+    nameTag.Color = Color3.fromRGB(0, 255, 0)    -- HIJAU
+    nameTag.Text = targetPlayer.Name
+
+    -- ===== HEALTH = HIJAU =====
+    healthBar.Filled = true
+    healthBar.Color = Color3.fromRGB(0, 255, 0)  -- HIJAU
+    healthBar.Thickness = 0
+
+    healthOutline.Thickness = 2
+    healthOutline.Filled = false
+    healthOutline.Color = Color3.fromRGB(0, 0, 0) -- HITAM
+
+    -- ===== HEAD CIRCLE = HIJAU =====
+    headCircle.Thickness = 2
+    headCircle.NumSides = 32
+    headCircle.Filled = false
+    headCircle.Color = Color3.fromRGB(0, 255, 0) -- HIJAU
+
+    -- ===== LINE = HIJAU =====
+    lineESP.Color = Color3.fromRGB(0, 255, 0)    -- HIJAU
+    lineESP.Thickness = 3
+
+    ESPObjects[targetPlayer] = {
+        Box = box,
+        Outline = outline,
+        NameTag = nameTag,
+        HealthBar = healthBar,
+        HealthOutline = healthOutline,
+        HeadCircle = headCircle,
+        Line = lineESP
+    }
+
+    -- Render loop for this player
+    RunService.RenderStepped:Connect(function()
+        local character = targetPlayer.Character
+        local humanoid = character and character:FindFirstChild("Humanoid")
+        local head = character and character:FindFirstChild("Head")
+        
+        if not character or not humanoid or humanoid.Health <= 0 or not head then
+            for _, obj in pairs(ESPObjects[targetPlayer]) do
+                obj.Visible = false
+            end
+            return
+        end
+
+        -- Calculate bounding box
+        local minVec, maxVec
+        for _, part in ipairs(character:GetChildren()) do
+            if part:IsA("BasePart") and part.Transparency < 1 then
+                local corners = {
+                    Vector3.new(part.Size.X/2, part.Size.Y/2, part.Size.Z/2),
+                    Vector3.new(-part.Size.X/2, part.Size.Y/2, part.Size.Z/2),
+                    Vector3.new(part.Size.X/2, -part.Size.Y/2, part.Size.Z/2),
+                    Vector3.new(part.Size.X/2, part.Size.Y/2, -part.Size.Z/2),
+                    Vector3.new(-part.Size.X/2, -part.Size.Y/2, part.Size.Z/2),
+                    Vector3.new(-part.Size.X/2, part.Size.Y/2, -part.Size.Z/2),
+                    Vector3.new(part.Size.X/2, -part.Size.Y/2, -part.Size.Z/2),
+                    Vector3.new(-part.Size.X/2, -part.Size.Y/2, -part.Size.Z/2)
+                }
+                
+                for _, corner in ipairs(corners) do
+                    local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position + corner)
+                    if onScreen then
+                        if not minVec then
+                            minVec, maxVec = Vector2.new(screenPos.X, screenPos.Y), Vector2.new(screenPos.X, screenPos.Y)
+                        else
+                            minVec = Vector2.new(math.min(minVec.X, screenPos.X), math.min(minVec.Y, screenPos.Y))
+                            maxVec = Vector2.new(math.max(maxVec.X, screenPos.X), math.max(maxVec.Y, screenPos.Y))
+                        end
+                    end
+                end
+            end
+        end
+
+        if minVec and maxVec then
+            local size = maxVec - minVec
+            local pos = minVec
+            local objs = ESPObjects[targetPlayer]
+
+            -- Update visibility based on ESP state
+            objs.Box.Visible = ESP.Box
+            objs.Outline.Visible = ESP.Box
+            objs.NameTag.Visible = ESP.Name
+            objs.HealthOutline.Visible = ESP.Health
+            objs.HealthBar.Visible = ESP.Health
+            objs.HeadCircle.Visible = ESP.HeadCircle
+            objs.Line.Visible = ESP.Line
+
+            -- ===== BOX = PUTIH (dengan outline hitam) =====
+            if ESP.Box then
+                objs.Box.Position = pos
+                objs.Box.Size = size
+                objs.Outline.Position = pos
+                objs.Outline.Size = size
+            end
+
+            -- ===== NAME = HIJAU =====
+            if ESP.Name then
+                objs.NameTag.Position = Vector2.new((minVec.X + maxVec.X) / 2, minVec.Y - 18)
+            end
+
+            -- ===== HEALTH = HIJAU =====
+            if ESP.Health then
+                local hpPerc = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
+                local barHeight = size.Y * hpPerc
+                objs.HealthOutline.Size = Vector2.new(HEALTHBAR_WIDTH + 1, size.Y + 2)
+                objs.HealthOutline.Position = Vector2.new(pos.X - 6, pos.Y - 1)
+                objs.HealthBar.Size = Vector2.new(HEALTHBAR_WIDTH, barHeight)
+                objs.HealthBar.Position = Vector2.new(pos.X - 5, pos.Y + (size.Y - barHeight))
+                objs.HealthBar.Color = Color3.fromRGB(0, 255, 0)  -- HIJAU
+            end
+
+            -- ===== HEAD CIRCLE = HIJAU =====
+            if ESP.HeadCircle and head then
+                local headPos, onScreen = Camera:WorldToViewportPoint(head.Position)
+                if onScreen then
+                    local top = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, head.Size.Y/2, 0))
+                    local bottom = Camera:WorldToViewportPoint(head.Position - Vector3.new(0, head.Size.Y/2, 0))
+                    objs.HeadCircle.Position = Vector2.new(headPos.X, headPos.Y)
+                    objs.HeadCircle.Radius = math.abs(top.Y - bottom.Y) / 2
+                end
+            end
+
+            -- ===== LINE = HIJAU =====
+            if ESP.Line then
+                local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                objs.Line.From = screenCenter
+                objs.Line.To = Vector2.new((minVec.X + maxVec.X) / 2, (minVec.Y + maxVec.Y) / 2)
+            end
+        else
+            for _, obj in pairs(ESPObjects[targetPlayer]) do
+                obj.Visible = false
+            end
+        end
+    end)
+end
+
+-- Initialize ESP for all players
+for _, targetPlayer in pairs(Players:GetPlayers()) do
+    createESP(targetPlayer)
+end
+
+-- Handle new players
+Players.PlayerAdded:Connect(createESP)
+
+-- Update player count when players join/leave
+Players.PlayerAdded:Connect(function()
+    PlayerCount.Text = tostring(#Players:GetPlayers() - 1)
+end)
+
+Players.PlayerRemoving:Connect(function()
+    PlayerCount.Text = tostring(#Players:GetPlayers() - 1)
+end)
+
+print("✅ FIQQZR7 ESP - MODERN HUB (BIRU UI + BOX PUTIH + SEMUA HIJAU)")
+print("📌 UI: Glass morphism + neon blue theme")
+print("📌 BOX: Putih dengan outline hitam")
+print("📌 NAME: Hijau terang")
+print("📌 HEALTH: Hijau terang")
+print("📌 HEAD CIRCLE: Hijau terang")
+print("📌 LINE: Hijau terang")
