@@ -1,0 +1,512 @@
+-- ============================================================
+-- FIQQZR7 SKYBOX CHANGER - CLEAN EDITION
+-- By Fiqqzr7 | Support Semua ID Roblox (Gambar/Decal/Asset)
+-- Toggle Frame DIBUANG
+-- ============================================================
+
+local Lighting = game:GetService("Lighting")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- ===== CREATE GUI =====
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FIQQZR7_SkyboxChanger"
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- ===== MAIN FRAME (COMPACT) =====
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 300, 0, 400)
+mainFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+mainFrame.BorderColor3 = Color3.fromRGB(100, 150, 255)
+mainFrame.BorderSizePixel = 1.5
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+-- Sudut bulat
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 12)
+mainCorner.Parent = mainFrame
+
+-- Shadow
+local shadow = Instance.new("ImageLabel")
+shadow.Size = UDim2.new(1, 12, 1, 12)
+shadow.Position = UDim2.new(0, -6, 0, -6)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://1316045217"
+shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+shadow.ImageTransparency = 0.8
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+shadow.Parent = mainFrame
+shadow.ZIndex = -1
+
+-- ===== TITLE BAR =====
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, -12, 0, 35)
+titleBar.Position = UDim2.new(0, 6, 0, 6)
+titleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+titleBar.BackgroundTransparency = 0.1
+titleBar.BorderColor3 = Color3.fromRGB(100, 150, 255)
+titleBar.BorderSizePixel = 1
+titleBar.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 10)
+titleCorner.Parent = titleBar
+
+-- Icon
+local icon = Instance.new("TextLabel")
+icon.Size = UDim2.new(0, 24, 0, 24)
+icon.Position = UDim2.new(0, 6, 0.5, -12)
+icon.BackgroundColor3 = Color3.fromRGB(50, 100, 200)
+icon.BackgroundTransparency = 0.2
+icon.Text = "🌌"
+icon.TextColor3 = Color3.fromRGB(255, 255, 255)
+icon.TextSize = 16
+icon.Font = Enum.Font.GothamBold
+icon.Parent = titleBar
+
+local iconCorner = Instance.new("UICorner")
+iconCorner.CornerRadius = UDim.new(0, 6)
+iconCorner.Parent = icon
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(0.6, 0, 0.5, 0)
+title.Position = UDim2.new(0, 35, 0, 6)
+title.BackgroundTransparency = 1
+title.Text = "FIQQZR7 SKYBOX"
+title.TextColor3 = Color3.fromRGB(150, 200, 255)
+title.TextSize = 14
+title.Font = Enum.Font.GothamBlack
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = titleBar
+
+-- Subtitle
+local subtitle = Instance.new("TextLabel")
+subtitle.Size = UDim2.new(0.6, 0, 0.3, 0)
+subtitle.Position = UDim2.new(0, 35, 0, 20)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "By Fiqqzr7"
+subtitle.TextColor3 = Color3.fromRGB(150, 150, 180)
+subtitle.TextSize = 9
+subtitle.Font = Enum.Font.Gotham
+subtitle.TextXAlignment = Enum.TextXAlignment.Left
+subtitle.Parent = titleBar
+
+-- Close button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 20, 0, 20)
+closeBtn.Position = UDim2.new(1, -28, 0.5, -10)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 12
+closeBtn.Parent = titleBar
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 5)
+closeCorner.Parent = closeBtn
+
+closeBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+-- Minimize button
+local minBtn = Instance.new("TextButton")
+minBtn.Size = UDim2.new(0, 20, 0, 20)
+minBtn.Position = UDim2.new(1, -52, 0.5, -10)
+minBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+minBtn.Text = "−"
+minBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+minBtn.Font = Enum.Font.GothamBold
+minBtn.TextSize = 14
+minBtn.Parent = titleBar
+
+local minCorner = Instance.new("UICorner")
+minCorner.CornerRadius = UDim.new(0, 5)
+minCorner.Parent = minBtn
+
+local minimized = false
+minBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        TweenService:Create(mainFrame, TweenInfo.new(0.2), {
+            Size = UDim2.new(0, 300, 0, 40)
+        }):Play()
+        contentFrame.Visible = false
+        minBtn.Text = "+"
+    else
+        TweenService:Create(mainFrame, TweenInfo.new(0.2), {
+            Size = UDim2.new(0, 300, 0, 400)
+        }):Play()
+        task.wait(0.1)
+        contentFrame.Visible = true
+        minBtn.Text = "−"
+    end
+end)
+
+-- ===== CONTENT SCROLL =====
+local contentFrame = Instance.new("ScrollingFrame")
+contentFrame.Size = UDim2.new(1, -14, 1, -52)
+contentFrame.Position = UDim2.new(0, 7, 0, 45)
+contentFrame.BackgroundTransparency = 1
+contentFrame.ScrollBarThickness = 4
+contentFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 150, 255)
+contentFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+contentFrame.Parent = mainFrame
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 8)
+layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Parent = contentFrame
+
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    contentFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 15)
+end)
+
+-- ===== SINGLE ID INPUT (UNTUK SEMUA SISI) =====
+local singleFrame = Instance.new("Frame")
+singleFrame.Size = UDim2.new(0.95, 0, 0, 70)
+singleFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+singleFrame.BorderColor3 = Color3.fromRGB(100, 150, 255)
+singleFrame.BorderSizePixel = 1
+singleFrame.Parent = contentFrame
+
+local singleCorner = Instance.new("UICorner")
+singleCorner.CornerRadius = UDim.new(0, 8)
+singleCorner.Parent = singleFrame
+
+local singleLabel = Instance.new("TextLabel")
+singleLabel.Size = UDim2.new(1, -10, 0, 18)
+singleLabel.Position = UDim2.new(0, 8, 0, 6)
+singleLabel.BackgroundTransparency = 1
+singleLabel.Text = "🎨 PASTE ID IMAGE (ALL SIDES)"
+singleLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
+singleLabel.Font = Enum.Font.GothamBold
+singleLabel.TextSize = 12
+singleLabel.TextXAlignment = Enum.TextXAlignment.Left
+singleLabel.Parent = singleFrame
+
+local singleBox = Instance.new("TextBox")
+singleBox.Size = UDim2.new(0.7, -10, 0, 28)
+singleBox.Position = UDim2.new(0, 8, 0, 28)
+singleBox.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+singleBox.BorderColor3 = Color3.fromRGB(100, 150, 255)
+singleBox.BorderSizePixel = 1
+singleBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+singleBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+singleBox.PlaceholderText = "Masukkan ID Gambar/Decal"
+singleBox.Text = ""
+singleBox.Font = Enum.Font.Gotham
+singleBox.TextSize = 12
+singleBox.ClearTextOnFocus = false
+singleBox.Parent = singleFrame
+
+local singleBoxCorner = Instance.new("UICorner")
+singleBoxCorner.CornerRadius = UDim.new(0, 5)
+singleBoxCorner.Parent = singleBox
+
+local singleApply = Instance.new("TextButton")
+singleApply.Size = UDim2.new(0.25, -5, 0, 28)
+singleApply.Position = UDim2.new(0.72, 0, 0, 28)
+singleApply.BackgroundColor3 = Color3.fromRGB(50, 100, 200)
+singleApply.BorderColor3 = Color3.fromRGB(100, 150, 255)
+singleApply.BorderSizePixel = 1
+singleApply.Text = "APPLY"
+singleApply.TextColor3 = Color3.fromRGB(255, 255, 255)
+singleApply.Font = Enum.Font.GothamBold
+singleApply.TextSize = 11
+singleApply.Parent = singleFrame
+
+local singleApplyCorner = Instance.new("UICorner")
+singleApplyCorner.CornerRadius = UDim.new(0, 5)
+singleApplyCorner.Parent = singleApply
+
+-- Skybox aktif (tanpa toggle)
+local skyboxEnabled = true
+
+singleApply.MouseButton1Click:Connect(function()
+    local id = singleBox.Text:match("%d+")
+    if id and skyboxEnabled then
+        local skyboxId = "rbxassetid://" .. id
+        
+        local sky = Lighting:FindFirstChildOfClass("Sky")
+        if not sky then
+            sky = Instance.new("Sky")
+            sky.Parent = Lighting
+        end
+        
+        sky.SkyboxBk = skyboxId
+        sky.SkyboxDn = skyboxId
+        sky.SkyboxFt = skyboxId
+        sky.SkyboxLf = skyboxId
+        sky.SkyboxRt = skyboxId
+        sky.SkyboxUp = skyboxId
+        
+        singleApply.BackgroundColor3 = Color3.fromRGB(70, 130, 230)
+        TweenService:Create(singleApply, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(50, 100, 200)
+        }):Play()
+        
+        singleBox.Text = ""
+        singleBox.PlaceholderText = "✓ Applied! ID: " .. id
+    end
+end)
+
+-- ===== 6 SIDED CUSTOM =====
+local sidesFrame = Instance.new("Frame")
+sidesFrame.Size = UDim2.new(0.95, 0, 0, 210)
+sidesFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+sidesFrame.BorderColor3 = Color3.fromRGB(100, 150, 255)
+sidesFrame.BorderSizePixel = 1
+sidesFrame.Parent = contentFrame
+
+local sidesCorner = Instance.new("UICorner")
+sidesCorner.CornerRadius = UDim.new(0, 8)
+sidesCorner.Parent = sidesFrame
+
+local sidesLabel = Instance.new("TextLabel")
+sidesLabel.Size = UDim2.new(1, -10, 0, 18)
+sidesLabel.Position = UDim2.new(0, 8, 0, 6)
+sidesLabel.BackgroundTransparency = 1
+sidesLabel.Text = "🔲 6 SIDED CUSTOM"
+sidesLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
+sidesLabel.Font = Enum.Font.GothamBold
+sidesLabel.TextSize = 12
+sidesLabel.TextXAlignment = Enum.TextXAlignment.Left
+sidesLabel.Parent = sidesFrame
+
+local sides = {
+    {"Top", "SkyboxUp", 30},
+    {"Bottom", "SkyboxDn", 55},
+    {"Front", "SkyboxFt", 80},
+    {"Back", "SkyboxBk", 105},
+    {"Left", "SkyboxLf", 130},
+    {"Right", "SkyboxRt", 155},
+}
+
+for _, side in ipairs(sides) do
+    local name = side[1]
+    local prop = side[2]
+    local yPos = side[3]
+    
+    local sideLabel = Instance.new("TextLabel")
+    sideLabel.Size = UDim2.new(0.2, 0, 0, 20)
+    sideLabel.Position = UDim2.new(0, 10, 0, yPos)
+    sideLabel.BackgroundTransparency = 1
+    sideLabel.Text = name
+    sideLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
+    sideLabel.Font = Enum.Font.GothamBold
+    sideLabel.TextSize = 11
+    sideLabel.TextXAlignment = Enum.TextXAlignment.Left
+    sideLabel.Parent = sidesFrame
+
+    local sideBox = Instance.new("TextBox")
+    sideBox.Size = UDim2.new(0.45, 0, 0, 22)
+    sideBox.Position = UDim2.new(0.25, 0, 0, yPos)
+    sideBox.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    sideBox.BorderColor3 = Color3.fromRGB(100, 150, 255)
+    sideBox.BorderSizePixel = 1
+    sideBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    sideBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+    sideBox.PlaceholderText = "ID"
+    sideBox.Text = ""
+    sideBox.Font = Enum.Font.Gotham
+    sideBox.TextSize = 10
+    sideBox.ClearTextOnFocus = false
+    sideBox.Parent = sidesFrame
+
+    local sideBoxCorner = Instance.new("UICorner")
+    sideBoxCorner.CornerRadius = UDim.new(0, 4)
+    sideBoxCorner.Parent = sideBox
+
+    local sideBtn = Instance.new("TextButton")
+    sideBtn.Size = UDim2.new(0.15, 0, 0, 22)
+    sideBtn.Position = UDim2.new(0.75, 0, 0, yPos)
+    sideBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+    sideBtn.BorderColor3 = Color3.fromRGB(100, 150, 255)
+    sideBtn.BorderSizePixel = 1
+    sideBtn.Text = "SET"
+    sideBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    sideBtn.Font = Enum.Font.GothamBold
+    sideBtn.TextSize = 9
+    sideBtn.Parent = sidesFrame
+
+    local sideBtnCorner = Instance.new("UICorner")
+sideBtnCorner.CornerRadius = UDim.new(0, 4)
+    sideBtnCorner.Parent = sideBtn
+
+    sideBtn.MouseButton1Click:Connect(function()
+        local id = sideBox.Text:match("%d+")
+        if id and skyboxEnabled then
+            local skyboxId = "rbxassetid://" .. id
+            
+            local sky = Lighting:FindFirstChildOfClass("Sky")
+            if not sky then
+                sky = Instance.new("Sky")
+                sky.Parent = Lighting
+            end
+            
+            sky[prop] = skyboxId
+            
+            sideBtn.BackgroundColor3 = Color3.fromRGB(80, 100, 150)
+            TweenService:Create(sideBtn, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+            }):Play()
+            
+            sideBox.Text = ""
+        end
+    end)
+end
+
+-- ===== ID PRESETS =====
+local presetsFrame = Instance.new("Frame")
+presetsFrame.Size = UDim2.new(0.95, 0, 0, 100)
+presetsFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+presetsFrame.BorderColor3 = Color3.fromRGB(100, 150, 255)
+presetsFrame.BorderSizePixel = 1
+presetsFrame.Parent = contentFrame
+
+local presetsCorner = Instance.new("UICorner")
+presetsCorner.CornerRadius = UDim.new(0, 8)
+presetsCorner.Parent = presetsFrame
+
+local presetsLabel = Instance.new("TextLabel")
+presetsLabel.Size = UDim2.new(1, -10, 0, 18)
+presetsLabel.Position = UDim2.new(0, 8, 0, 6)
+presetsLabel.BackgroundTransparency = 1
+presetsLabel.Text = "⭐ FIQQZR7 ID SKYBOX"
+presetsLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
+presetsLabel.Font = Enum.Font.GothamBold
+presetsLabel.TextSize = 12
+presetsLabel.TextXAlignment = Enum.TextXAlignment.Left
+presetsLabel.Parent = presetsFrame
+
+local presetButtons = {
+    {"FIQQZR7 LOGO", "137113558220288", 30},
+    {"ERROR 404", "404", 55},
+    {"FIQQZR7 DARK", "137113558220289", 80},
+}
+
+for _, preset in ipairs(presetButtons) do
+    local name = preset[1]
+    local id = preset[2]
+    local yPos = preset[3]
+    
+    local presetBtn = Instance.new("TextButton")
+    presetBtn.Size = UDim2.new(0.9, 0, 0, 20)
+    presetBtn.Position = UDim2.new(0.05, 0, 0, yPos)
+    presetBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    presetBtn.BorderColor3 = Color3.fromRGB(100, 150, 255)
+    presetBtn.BorderSizePixel = 1
+    presetBtn.Text = name .. " (ID: " .. id .. ")"
+    presetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    presetBtn.Font = Enum.Font.Gotham
+    presetBtn.TextSize = 9
+    presetBtn.Parent = presetsFrame
+
+    local presetCorner = Instance.new("UICorner")
+    presetCorner.CornerRadius = UDim.new(0, 4)
+    presetCorner.Parent = presetBtn
+
+    presetBtn.MouseButton1Click:Connect(function()
+        if skyboxEnabled then
+            local skyboxId = "rbxassetid://" .. id
+            
+            local sky = Lighting:FindFirstChildOfClass("Sky")
+            if not sky then
+                sky = Instance.new("Sky")
+                sky.Parent = Lighting
+            end
+            
+            sky.SkyboxBk = skyboxId
+            sky.SkyboxDn = skyboxId
+            sky.SkyboxFt = skyboxId
+            sky.SkyboxLf = skyboxId
+            sky.SkyboxRt = skyboxId
+            sky.SkyboxUp = skyboxId
+            
+            presetBtn.BackgroundColor3 = Color3.fromRGB(50, 100, 200)
+            TweenService:Create(presetBtn, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+            }):Play()
+        end
+    end)
+end
+
+-- ===== RESET BUTTON =====
+local resetBtn = Instance.new("TextButton")
+resetBtn.Size = UDim2.new(0.95, 0, 0, 30)
+resetBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+resetBtn.BorderColor3 = Color3.fromRGB(150, 150, 150)
+resetBtn.BorderSizePixel = 1
+resetBtn.Text = "🗑️ RESET SKYBOX"
+resetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+resetBtn.Font = Enum.Font.GothamBold
+resetBtn.TextSize = 11
+resetBtn.Parent = contentFrame
+
+local resetCorner = Instance.new("UICorner")
+resetCorner.CornerRadius = UDim.new(0, 6)
+resetCorner.Parent = resetBtn
+
+resetBtn.MouseButton1Click:Connect(function()
+    local sky = Lighting:FindFirstChildOfClass("Sky")
+    if sky then
+        sky:Destroy()
+    end
+    
+    -- Clear all input boxes
+    singleBox.Text = ""
+    for _, side in ipairs(sides) do
+        local box = sidesFrame:FindFirstChildOfClass("TextBox") -- simplified
+    end
+end)
+
+-- ===== INSERT KEY TOGGLE =====
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Insert then
+        screenGui.Enabled = not screenGui.Enabled
+    end
+end)
+
+-- ===== NOTIFICATION =====
+local notify = Instance.new("TextLabel")
+notify.Size = UDim2.new(0, 200, 0, 30)
+notify.Position = UDim2.new(0.5, -100, 0, 10)
+notify.BackgroundColor3 = Color3.fromRGB(0, 80, 0)
+notify.BackgroundTransparency = 0.1
+notify.Text = "✅ FIQQZR7 SKYBOX READY"
+notify.TextColor3 = Color3.fromRGB(255, 255, 255)
+notify.Font = Enum.Font.GothamBold
+notify.TextSize = 12
+notify.Parent = screenGui
+
+local notifyCorner = Instance.new("UICorner")
+notifyCorner.CornerRadius = UDim.new(0, 8)
+notifyCorner.Parent = notify
+
+notify.Position = UDim2.new(0.5, -100, 0, -40)
+TweenService:Create(notify, TweenInfo.new(0.3), {
+    Position = UDim2.new(0.5, -100, 0, 10)
+}):Play()
+
+task.wait(2)
+TweenService:Create(notify, TweenInfo.new(0.3), {
+    Position = UDim2.new(0.5, -100, 0, -40)
+}):Play()
+task.wait(0.3)
+notify:Destroy()
+
+print("✅ FIQQZR7 Skybox Changer - Clean Edition Loaded!")
+print("📌 Toggle Frame Removed • All IDs Supported")
+print("📌 Press INSERT to toggle UI")
