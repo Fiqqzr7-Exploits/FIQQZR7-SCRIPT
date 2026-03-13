@@ -6,29 +6,11 @@
     ██║     ██║╚██████╔╝╚██████╔╝███████╗███████╗███████║
     ╚═╝     ╚═╝ ╚═════╝  ╚══▀▀═╝ ╚══════╝╚══════╝╚══════╝
     
-    FIQQZR7 COPY MAPS SYSTEM v5.0
-    Advanced Map Manipulation Tool
+    FIQQZR7 ULTIMATE MAP COPY SYSTEM v6.0
+    Full Instance Copy • Save/Load • Source Export
     Author: Fiqqzr7XCode
     Date: 2026
 ]]
-
----------------------------------------------------
---== UNIVERSAL EXECUTOR SUPPORT ==--
----------------------------------------------------
-local Executor = {
-    name = (identifyexecutor and identifyexecutor()) or "Unknown",
-    supports = {
-        files = (writefile and true) or false,
-        clipboard = (setclipboard and true) or false,
-        synapse = (syn and true) or false,
-    }
-}
-
----------------------------------------------------
---== LOAD MODERN UI ==--
----------------------------------------------------
-local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
-WindUI.TransparencyValue = 0
 
 ---------------------------------------------------
 --== SERVICES ==--
@@ -39,91 +21,681 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
 local Workspace = game:GetService("Workspace")
-local Selection = game:GetService("Selection")
+local CoreGui = game:GetService("CoreGui")
 local Player = Players.LocalPlayer
 local Mouse = Player:GetMouse()
 local Camera = Workspace.CurrentCamera
 
 ---------------------------------------------------
---== ULTRA MODERN THEME ==--
+--== EXECUTOR DETECTION ==--
 ---------------------------------------------------
-WindUI:AddTheme({
-    Name = "FIQQZR7 Map Copy",
-    Accent = WindUI:Gradient({
-        ["0"]   = { Color = Color3.fromHex("#00b4d8"), Transparency = 0 },
-        ["50"]  = { Color = Color3.fromHex("#0077b6"), Transparency = 0 },
-        ["100"] = { Color = Color3.fromHex("#03045e"), Transparency = 0 },
-    }, { Rotation = 135 }),
-    Background = Color3.fromHex("#0a0f14"),
-    Background2 = Color3.fromHex("#1a1f26"),
-    SideBar = Color3.fromHex("#232831"),
-    Text = Color3.fromHex("#ffffff"),
-    Text2 = Color3.fromHex("#b0b8c5"),
-    Success = Color3.fromHex("#2ecc71"),
-    Warning = Color3.fromHex("#f39c12"),
-    Error = Color3.fromHex("#e74c3c"),
-    Info = Color3.fromHex("#3498db"),
-})
+local Executor = {
+    name = "Unknown",
+    supports = {
+        files = false,
+        clipboard = false,
+    }
+}
+
+-- Detect executor capabilities
+pcall(function()
+    if writefile then Executor.supports.files = true end
+    if setclipboard then Executor.supports.clipboard = true end
+    if identifyexecutor then Executor.name = identifyexecutor() end
+end)
+
+---------------------------------------------------
+--== MODERN UI CREATION (TANPA WINDUI) ==--
+---------------------------------------------------
+
+-- Create main GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FIQQZR7_MapCopy"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = CoreGui
+
+-- Modern color scheme
+local Colors = {
+    Primary = Color3.fromRGB(65, 88, 208),      -- Deep blue
+    Secondary = Color3.fromRGB(200, 80, 192),   -- Purple
+    Accent = Color3.fromRGB(255, 204, 112),     -- Gold
+    Background = Color3.fromRGB(15, 12, 31),    -- Dark purple
+    Background2 = Color3.fromRGB(26, 21, 48),   -- Lighter dark
+    Surface = Color3.fromRGB(35, 30, 61),       -- Surface color
+    Text = Color3.fromRGB(255, 255, 255),       -- White
+    Text2 = Color3.fromRGB(200, 200, 255),      -- Soft white
+    Success = Color3.fromRGB(46, 204, 113),     -- Green
+    Warning = Color3.fromRGB(241, 196, 15),     -- Yellow
+    Error = Color3.fromRGB(231, 76, 60),        -- Red
+    Info = Color3.fromRGB(52, 152, 219),        -- Blue
+}
+
+-- Main Window
+local MainWindow = Instance.new("Frame")
+MainWindow.Name = "MainWindow"
+MainWindow.Size = UDim2.fromOffset(700, 550)
+MainWindow.Position = UDim2.new(0.5, -350, 0.5, -275)
+MainWindow.BackgroundColor3 = Colors.Background
+MainWindow.BackgroundTransparency = 0.05
+MainWindow.BorderSizePixel = 0
+MainWindow.ClipsDescendants = true
+MainWindow.Parent = ScreenGui
+
+-- Window shadow
+local Shadow = Instance.new("ImageLabel")
+Shadow.Name = "Shadow"
+Shadow.Size = UDim2.new(1, 20, 1, 20)
+Shadow.Position = UDim2.new(-0.5, -10, -0.5, -10)
+Shadow.BackgroundTransparency = 1
+Shadow.Image = "rbxassetid://1316045217"
+Shadow.ImageColor3 = Color3.new(0, 0, 0)
+Shadow.ImageTransparency = 0.7
+Shadow.ScaleType = Enum.ScaleType.Slice
+Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+Shadow.Parent = MainWindow
+
+-- Window corner rounding
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 15)
+MainCorner.Parent = MainWindow
+
+-- Window stroke
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Colors.Primary
+MainStroke.Thickness = 2
+MainStroke.Transparency = 0.7
+MainStroke.Parent = MainWindow
+
+-- Title Bar
+local TitleBar = Instance.new("Frame")
+TitleBar.Name = "TitleBar"
+TitleBar.Size = UDim2.new(1, 0, 0, 45)
+TitleBar.BackgroundColor3 = Colors.Background2
+TitleBar.BackgroundTransparency = 0.1
+TitleBar.BorderSizePixel = 0
+TitleBar.Parent = MainWindow
+
+-- Title Bar Corner
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 15)
+TitleCorner.Parent = TitleBar
+
+-- Title Text
+local TitleText = Instance.new("TextLabel")
+TitleText.Name = "TitleText"
+TitleText.Size = UDim2.new(0.4, 0, 1, 0)
+TitleText.Position = UDim2.new(0.03, 0, 0, 0)
+TitleText.BackgroundTransparency = 1
+TitleText.Text = "FIQQZR7 MAP COPY v6.0"
+TitleText.TextColor3 = Colors.Text
+TitleText.TextScaled = true
+TitleText.Font = Enum.Font.GothamBold
+TitleText.TextXAlignment = Enum.TextXAlignment.Left
+TitleText.Parent = TitleBar
+
+-- Executor info
+local ExecutorLabel = Instance.new("TextLabel")
+ExecutorLabel.Name = "ExecutorLabel"
+ExecutorLabel.Size = UDim2.new(0.3, 0, 1, 0)
+ExecutorLabel.Position = UDim2.new(0.4, 0, 0, 0)
+ExecutorLabel.BackgroundTransparency = 1
+ExecutorLabel.Text = "[" .. Executor.name .. "]"
+ExecutorLabel.TextColor3 = Colors.Accent
+ExecutorLabel.TextScaled = true
+ExecutorLabel.Font = Enum.Font.Gotham
+ExecutorLabel.TextXAlignment = Enum.TextXAlignment.Center
+ExecutorLabel.Parent = TitleBar
+
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -35, 0.5, -15)
+CloseButton.BackgroundColor3 = Colors.Error
+CloseButton.BackgroundTransparency = 0.3
+CloseButton.Text = "✕"
+CloseButton.TextColor3 = Colors.Text
+CloseButton.TextScaled = true
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Parent = TitleBar
+
+-- Minimize Button
+local MinButton = Instance.new("TextButton")
+MinButton.Name = "MinButton"
+MinButton.Size = UDim2.new(0, 30, 0, 30)
+MinButton.Position = UDim2.new(1, -70, 0.5, -15)
+MinButton.BackgroundColor3 = Colors.Warning
+MinButton.BackgroundTransparency = 0.3
+MinButton.Text = "−"
+MinButton.TextColor3 = Colors.Text
+MinButton.TextScaled = true
+MinButton.Font = Enum.Font.GothamBold
+MinButton.Parent = TitleBar
+
+-- Button corners
+local function addCorner(button)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = button
+end
+addCorner(CloseButton)
+addCorner(MinButton)
+
+-- Tab Bar
+local TabBar = Instance.new("Frame")
+TabBar.Name = "TabBar"
+TabBar.Size = UDim2.new(1, 0, 0, 50)
+TabBar.Position = UDim2.new(0, 0, 0, 45)
+TabBar.BackgroundTransparency = 1
+TabBar.Parent = MainWindow
+
+-- Tab buttons
+local Tabs = {}
+local TabNames = {"📋 MAIN", "✏️ EDIT", "⚙️ SETTINGS", "📜 HISTORY", "📤 EXPORT", "ℹ️ INFO"}
+local TabPositions = {0, 0.16, 0.32, 0.48, 0.64, 0.8}
+
+for i, name in ipairs(TabNames) do
+    local tab = Instance.new("TextButton")
+    tab.Name = "Tab_" .. name
+    tab.Size = UDim2.new(0.15, 0, 0, 35)
+    tab.Position = UDim2.new(TabPositions[i], 5, 0.5, -17.5)
+    tab.BackgroundColor3 = i == 1 and Colors.Primary or Colors.Background2
+    tab.BackgroundTransparency = i == 1 and 0.2 or 0.5
+    tab.Text = name
+    tab.TextColor3 = Colors.Text
+    tab.TextScaled = true
+    tab.Font = Enum.Font.GothamBold
+    tab.Parent = TabBar
+    
+    local tabCorner = Instance.new("UICorner")
+    tabCorner.CornerRadius = UDim.new(0, 8)
+    tabCorner.Parent = tab
+    
+    Tabs[i] = tab
+end
+
+-- Content Container
+local ContentContainer = Instance.new("Frame")
+ContentContainer.Name = "ContentContainer"
+ContentContainer.Size = UDim2.new(1, -20, 1, -115)
+ContentContainer.Position = UDim2.new(0, 10, 0, 95)
+ContentContainer.BackgroundColor3 = Colors.Background2
+ContentContainer.BackgroundTransparency = 0.3
+ContentContainer.BorderSizePixel = 0
+ContentContainer.ClipsDescendants = true
+ContentContainer.Parent = MainWindow
+
+local ContainerCorner = Instance.new("UICorner")
+ContainerCorner.CornerRadius = UDim.new(0, 10)
+ContainerCorner.Parent = ContentContainer
+
+-- Content pages
+local Pages = {}
+for i = 1, 6 do
+    local page = Instance.new("ScrollingFrame")
+    page.Name = "Page_" .. i
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundTransparency = 1
+    page.BorderSizePixel = 0
+    page.ScrollBarThickness = 6
+    page.ScrollBarImageColor3 = Colors.Primary
+    page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    page.Visible = i == 1
+    page.Parent = ContentContainer
+    
+    -- Page layout
+    local layout = Instance.new("UIListLayout")
+    layout.Parent = page
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Padding = UDim.new(0, 10)
+    
+    local padding = Instance.new("UIPadding")
+    padding.Parent = page
+    padding.PaddingTop = UDim.new(0, 10)
+    padding.PaddingBottom = UDim.new(0, 10)
+    padding.PaddingLeft = UDim.new(0, 10)
+    padding.PaddingRight = UDim.new(0, 10)
+    
+    Pages[i] = page
+end
+
+-- Tab switching function
+local function switchTab(index)
+    for i, page in ipairs(Pages) do
+        page.Visible = (i == index)
+    end
+    for i, tab in ipairs(Tabs) do
+        tab.BackgroundColor3 = (i == index) and Colors.Primary or Colors.Background2
+        tab.BackgroundTransparency = (i == index) and 0.2 or 0.5
+    end
+end
+
+for i, tab in ipairs(Tabs) do
+    tab.MouseButton1Click:Connect(function()
+        switchTab(i)
+    end)
+end
+
+-- UI Helper Functions
+local function createSection(parent, title)
+    local section = Instance.new("Frame")
+    section.Name = "Section_" .. title
+    section.Size = UDim2.new(1, 0, 0, 40)
+    section.BackgroundTransparency = 1
+    section.Parent = parent
+    
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0, 25)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = title
+    titleLabel.TextColor3 = Colors.Accent
+    titleLabel.TextScaled = true
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.Parent = section
+    
+    local line = Instance.new("Frame")
+    line.Size = UDim2.new(1, 0, 0, 2)
+    line.Position = UDim2.new(0, 0, 1, -2)
+    line.BackgroundColor3 = Colors.Primary
+    line.BackgroundTransparency = 0.5
+    line.BorderSizePixel = 0
+    line.Parent = section
+    
+    return section
+end
+
+local function createButton(parent, text, desc, color, callback)
+    local container = Instance.new("Frame")
+    container.Name = "Button_" .. text:gsub("%s+", "")
+    container.Size = UDim2.new(1, 0, 0, 50)
+    container.BackgroundTransparency = 1
+    container.Parent = parent
+    
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, 40)
+    button.Position = UDim2.new(0, 0, 0.5, -20)
+    button.BackgroundColor3 = color or Colors.Primary
+    button.BackgroundTransparency = 0.2
+    button.Text = ""
+    button.Parent = container
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = button
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(0.7, 0, 0.5, 0)
+    title.Position = UDim2.new(0.02, 0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = text
+    title.TextColor3 = Colors.Text
+    title.TextScaled = true
+    title.Font = Enum.Font.GothamBold
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = button
+    
+    local descLabel = Instance.new("TextLabel")
+    descLabel.Size = UDim2.new(0.7, 0, 0.5, 0)
+    descLabel.Position = UDim2.new(0.02, 0, 0.5, 0)
+    descLabel.BackgroundTransparency = 1
+    descLabel.Text = desc or ""
+    descLabel.TextColor3 = Colors.Text2
+    descLabel.TextScaled = true
+    descLabel.Font = Enum.Font.Gotham
+    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+    descLabel.Parent = button
+    
+    button.MouseButton1Click:Connect(callback)
+    
+    return button
+end
+
+local function createToggle(parent, text, desc, default, callback)
+    local container = Instance.new("Frame")
+    container.Name = "Toggle_" .. text:gsub("%s+", "")
+    container.Size = UDim2.new(1, 0, 0, 50)
+    container.BackgroundTransparency = 1
+    container.Parent = parent
+    
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.new(1, 0, 0, 40)
+    bg.Position = UDim2.new(0, 0, 0.5, -20)
+    bg.BackgroundColor3 = Colors.Background
+    bg.BackgroundTransparency = 0.3
+    bg.Parent = container
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = bg
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(0.6, 0, 0.5, 0)
+    title.Position = UDim2.new(0.02, 0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = text
+    title.TextColor3 = Colors.Text
+    title.TextScaled = true
+    title.Font = Enum.Font.GothamBold
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = bg
+    
+    local descLabel = Instance.new("TextLabel")
+    descLabel.Size = UDim2.new(0.6, 0, 0.5, 0)
+    descLabel.Position = UDim2.new(0.02, 0, 0.5, 0)
+    descLabel.BackgroundTransparency = 1
+    descLabel.Text = desc or ""
+    descLabel.TextColor3 = Colors.Text2
+    descLabel.TextScaled = true
+    descLabel.Font = Enum.Font.Gotham
+    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+    descLabel.Parent = bg
+    
+    local toggleBg = Instance.new("Frame")
+    toggleBg.Name = "ToggleBg"
+    toggleBg.Size = UDim2.new(0, 50, 0, 25)
+    toggleBg.Position = UDim2.new(1, -60, 0.5, -12.5)
+    toggleBg.BackgroundColor3 = default and Colors.Success or Colors.Error
+    toggleBg.BackgroundTransparency = 0.2
+    toggleBg.Parent = bg
+    
+    local toggleCorner = Instance.new("UICorner")
+    toggleCorner.CornerRadius = UDim.new(0, 12.5)
+    toggleCorner.Parent = toggleBg
+    
+    local knob = Instance.new("Frame")
+    knob.Name = "Knob"
+    knob.Size = UDim2.new(0, 21, 0, 21)
+    knob.Position = default and UDim2.new(1, -23, 0.5, -10.5) or UDim2.new(0, 2, 0.5, -10.5)
+    knob.BackgroundColor3 = Colors.Text
+    knob.Parent = toggleBg
+    
+    local knobCorner = Instance.new("UICorner")
+    knobCorner.CornerRadius = UDim.new(0, 10.5)
+    knobCorner.Parent = knob
+    
+    local state = default
+    
+    local function updateToggle()
+        toggleBg.BackgroundColor3 = state and Colors.Success or Colors.Error
+        knob.Position = state and UDim2.new(1, -23, 0.5, -10.5) or UDim2.new(0, 2, 0.5, -10.5)
+    end
+    
+    local clickArea = Instance.new("TextButton")
+    clickArea.Size = UDim2.new(1, 0, 1, 0)
+    clickArea.BackgroundTransparency = 1
+    clickArea.Text = ""
+    clickArea.Parent = bg
+    
+    clickArea.MouseButton1Click:Connect(function()
+        state = not state
+        updateToggle()
+        if callback then callback(state) end
+    end)
+    
+    return { getState = function() return state end, setState = function(s) state = s; updateToggle() end }
+end
+
+local function createInput(parent, title, placeholder, default)
+    local container = Instance.new("Frame")
+    container.Name = "Input_" .. title:gsub("%s+", "")
+    container.Size = UDim2.new(1, 0, 0, 60)
+    container.BackgroundTransparency = 1
+    container.Parent = parent
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0, 20)
+    label.BackgroundTransparency = 1
+    label.Text = title
+    label.TextColor3 = Colors.Text
+    label.TextScaled = true
+    label.Font = Enum.Font.GothamBold
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = container
+    
+    local box = Instance.new("TextBox")
+    box.Size = UDim2.new(1, 0, 0, 35)
+    box.Position = UDim2.new(0, 0, 1, -35)
+    box.BackgroundColor3 = Colors.Surface
+    box.BackgroundTransparency = 0.3
+    box.Text = default or ""
+    box.PlaceholderText = placeholder or ""
+    box.PlaceholderColor3 = Colors.Text2
+    box.TextColor3 = Colors.Text
+    box.TextScaled = true
+    box.Font = Enum.Font.Gotham
+    box.Parent = container
+    
+    local boxCorner = Instance.new("UICorner")
+    boxCorner.CornerRadius = UDim.new(0, 6)
+    boxCorner.Parent = box
+    
+    return box
+end
+
+local function createDropdown(parent, title, options, default, callback)
+    local container = Instance.new("Frame")
+    container.Name = "Dropdown_" .. title:gsub("%s+", "")
+    container.Size = UDim2.new(1, 0, 0, 60)
+    container.BackgroundTransparency = 1
+    container.Parent = parent
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0, 20)
+    label.BackgroundTransparency = 1
+    label.Text = title
+    label.TextColor3 = Colors.Text
+    label.TextScaled = true
+    label.Font = Enum.Font.GothamBold
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = container
+    
+    local dropdown = Instance.new("TextButton")
+    dropdown.Size = UDim2.new(1, 0, 0, 35)
+    dropdown.Position = UDim2.new(0, 0, 1, -35)
+    dropdown.BackgroundColor3 = Colors.Surface
+    dropdown.BackgroundTransparency = 0.3
+    dropdown.Text = default or options[1] or "Select..."
+    dropdown.TextColor3 = Colors.Text
+    dropdown.TextScaled = true
+    dropdown.Font = Enum.Font.Gotham
+    dropdown.Parent = container
+    
+    local dropdownCorner = Instance.new("UICorner")
+    dropdownCorner.CornerRadius = UDim.new(0, 6)
+    dropdownCorner.Parent = dropdown
+    
+    local arrow = Instance.new("TextLabel")
+    arrow.Size = UDim2.new(0, 20, 1, 0)
+    arrow.Position = UDim2.new(1, -20, 0, 0)
+    arrow.BackgroundTransparency = 1
+    arrow.Text = "▼"
+    arrow.TextColor3 = Colors.Accent
+    arrow.TextScaled = true
+    arrow.Font = Enum.Font.Gotham
+    arrow.Parent = dropdown
+    
+    return dropdown
+end
+
+local function createSlider(parent, title, min, max, default, callback)
+    local container = Instance.new("Frame")
+    container.Name = "Slider_" .. title:gsub("%s+", "")
+    container.Size = UDim2.new(1, 0, 0, 60)
+    container.BackgroundTransparency = 1
+    container.Parent = parent
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.7, 0, 0, 20)
+    label.BackgroundTransparency = 1
+    label.Text = title .. ": " .. default
+    label.TextColor3 = Colors.Text
+    label.TextScaled = true
+    label.Font = Enum.Font.GothamBold
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = container
+    
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.Size = UDim2.new(0.3, 0, 0, 20)
+    valueLabel.Position = UDim2.new(0.7, 0, 0, 0)
+    valueLabel.BackgroundTransparency = 1
+    valueLabel.Text = tostring(default)
+    valueLabel.TextColor3 = Colors.Accent
+    valueLabel.TextScaled = true
+    valueLabel.Font = Enum.Font.GothamBold
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    valueLabel.Parent = container
+    
+    local sliderBg = Instance.new("Frame")
+    sliderBg.Size = UDim2.new(1, 0, 0, 25)
+    sliderBg.Position = UDim2.new(0, 0, 1, -25)
+    sliderBg.BackgroundColor3 = Colors.Surface
+    sliderBg.BackgroundTransparency = 0.3
+    sliderBg.Parent = container
+    
+    local sliderCorner = Instance.new("UICorner")
+    sliderCorner.CornerRadius = UDim.new(0, 12.5)
+    sliderCorner.Parent = sliderBg
+    
+    local fill = Instance.new("Frame")
+    fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+    fill.BackgroundColor3 = Colors.Primary
+    fill.BackgroundTransparency = 0.2
+    fill.Parent = sliderBg
+    
+    local fillCorner = Instance.new("UICorner")
+    fillCorner.CornerRadius = UDim.new(0, 12.5)
+    fillCorner.Parent = fill
+    
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.new(0, 20, 0, 20)
+    knob.Position = UDim2.new((default - min) / (max - min), -10, 0.5, -10)
+    knob.BackgroundColor3 = Colors.Text
+    knob.Parent = sliderBg
+    
+    local knobCorner = Instance.new("UICorner")
+    knobCorner.CornerRadius = UDim.new(0, 10)
+    knobCorner.Parent = knob
+    
+    local value = default
+    local dragging = false
+    
+    knob.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local mousePos = UserInputService:GetMouseLocation()
+            local absPos, absSize = sliderBg.AbsolutePosition, sliderBg.AbsoluteSize
+            local relativeX = math.clamp((mousePos.X - absPos.X) / absSize.X, 0, 1)
+            value = min + (max - min) * relativeX
+            value = math.floor(value * 100) / 100
+            
+            fill.Size = UDim2.new(relativeX, 0, 1, 0)
+            knob.Position = UDim2.new(relativeX, -10, 0.5, -10)
+            label.Text = title .. ": " .. value
+            valueLabel.Text = tostring(value)
+            
+            if callback then callback(value) end
+        end
+    end)
+    
+    return { getValue = function() return value end }
+end
 
 ---------------------------------------------------
 --== MAIN MAP COPY SYSTEM ==--
 ---------------------------------------------------
 local MapSystem = {
-    -- Core Data
     Selected = nil,
-    Copied = {},
     Clipboard = {},
     History = {},
     HistoryIndex = 0,
     
-    -- Settings
     Settings = {
-        AutoSelect = false,
-        HighlightSelected = true,
         IncludeChildren = true,
-        IncludeTerrain = false,
+        IncludeProperties = true,
+        IncludeDecals = true,
         PasteOffset = Vector3.new(0, 5, 0),
-        PasteRandomOffset = false,
-        RandomOffsetRange = 2,
         SnapToGrid = false,
         GridSize = 4,
         AutoSave = false,
-        AutoSaveInterval = 300,
-        MaxHistory = 50,
     },
     
-    -- UI State
     UI = {
         SelectionMode = false,
-        MultiSelect = false,
-        SelectedParts = {},
-        PreviewParts = {},
         ShowGrid = false,
         GridParts = {},
     },
     
-    -- Stats
     Stats = {
         TotalCopied = 0,
         TotalPasted = 0,
-        TotalSaved = 0,
-        TotalLoaded = 0,
         SessionStart = os.time(),
     },
 }
 
 ---------------------------------------------------
---== UTILITY FUNCTIONS ==--
+--== CORE FUNCTIONS ==--
 ---------------------------------------------------
+
+-- Notification function
 local function Notify(title, content, duration, type)
-    WindUI:Notify({
-        Title = title,
-        Content = content,
-        Duration = duration or 3,
-        Type = type or "info"
-    })
+    local notif = Instance.new("Frame")
+    notif.Size = UDim2.new(0, 300, 0, 60)
+    notif.Position = UDim2.new(0.5, -150, 0, -60)
+    notif.BackgroundColor3 = Colors.Surface
+    notif.BackgroundTransparency = 0.1
+    notif.Parent = ScreenGui
+    
+    local notifCorner = Instance.new("UICorner")
+    notifCorner.CornerRadius = UDim.new(0, 8)
+    notifCorner.Parent = notif
+    
+    local notifTitle = Instance.new("TextLabel")
+    notifTitle.Size = UDim2.new(1, -10, 0, 25)
+    notifTitle.Position = UDim2.new(0, 5, 0, 5)
+    notifTitle.BackgroundTransparency = 1
+    notifTitle.Text = title
+    notifTitle.TextColor3 = type == "error" and Colors.Error or type == "success" and Colors.Success or Colors.Accent
+    notifTitle.TextScaled = true
+    notifTitle.Font = Enum.Font.GothamBold
+    notifTitle.TextXAlignment = Enum.TextXAlignment.Left
+    notifTitle.Parent = notif
+    
+    local notifContent = Instance.new("TextLabel")
+    notifContent.Size = UDim2.new(1, -10, 0, 25)
+    notifContent.Position = UDim2.new(0, 5, 0, 30)
+    notifContent.BackgroundTransparency = 1
+    notifContent.Text = content
+    notifContent.TextColor3 = Colors.Text2
+    notifContent.TextScaled = true
+    notifContent.Font = Enum.Font.Gotham
+    notifContent.TextXAlignment = Enum.TextXAlignment.Left
+    notifContent.Parent = notif
+    
+    -- Animate in
+    notif.Position = UDim2.new(0.5, -150, 0, -60)
+    TweenService:Create(notif, TweenInfo.new(0.3), {Position = UDim2.new(0.5, -150, 0, 10)}):Play()
+    
+    task.delay(duration or 3, function()
+        TweenService:Create(notif, TweenInfo.new(0.3), {Position = UDim2.new(0.5, -150, 0, -60)}):Play()
+        task.delay(0.3, function() notif:Destroy() end)
+    end)
 end
 
+-- Save to file
 local function SaveToFile(filename, data)
     if not Executor.supports.files then
         Notify("Error", "File system not supported!", 3, "error")
@@ -137,6 +709,7 @@ local function SaveToFile(filename, data)
     return success
 end
 
+-- Load from file
 local function LoadFromFile(filename)
     if not Executor.supports.files then
         Notify("Error", "File system not supported!", 3, "error")
@@ -150,30 +723,108 @@ local function LoadFromFile(filename)
     return success and data or nil
 end
 
-local function CopyToClipboard(text)
-    if setclipboard then
-        setclipboard(text)
-        return true
-    elseif toclipboard then
-        toclipboard(text)
-        return true
+-- Copy instance completely
+local function CopyInstance(instance, recursive)
+    local data = {
+        Class = instance.ClassName,
+        Name = instance.Name,
+        Properties = {},
+        Children = {},
+    }
+    
+    -- Get all properties
+    if MapSystem.Settings.IncludeProperties then
+        local props = {}
+        for _, prop in ipairs(instance:GetProperties()) do
+            local success, value = pcall(function()
+                return instance[prop]
+            end)
+            if success and value ~= nil then
+                -- Handle special types
+                if type(value) == "Vector3" then
+                    props[prop] = {X = value.X, Y = value.Y, Z = value.Z}
+                elseif type(value) == "CFrame" then
+                    local x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22 = value:GetComponents()
+                    props[prop] = {
+                        X = x, Y = y, Z = z,
+                        R00 = r00, R01 = r01, R02 = r02,
+                        R10 = r10, R11 = r11, R12 = r12,
+                        R20 = r20, R21 = r21, R22 = r22
+                    }
+                elseif type(value) == "Color3" then
+                    props[prop] = {R = value.R, G = value.G, B = value.B}
+                elseif type(value) == "BrickColor" then
+                    props[prop] = value.Number
+                elseif type(value) == "UDim2" then
+                    props[prop] = {X = value.X, Y = value.Y, Width = value.Width.Offset, Height = value.Height.Offset}
+                elseif type(value) ~= "table" and type(value) ~= "userdata" and type(value) ~= "function" then
+                    props[prop] = value
+                end
+            end
+        end
+        data.Properties = props
     end
-    return false
+    
+    -- Copy children
+    if recursive then
+        for _, child in ipairs(instance:GetChildren()) do
+            table.insert(data.Children, CopyInstance(child, true))
+        end
+    end
+    
+    return data
 end
 
----------------------------------------------------
---== CORE FUNCTIONS ==--
----------------------------------------------------
+-- Create instance from data
+local function CreateInstance(data, parent)
+    local instance = Instance.new(data.Class)
+    instance.Name = data.Name
+    
+    -- Apply properties
+    for prop, value in pairs(data.Properties) do
+        pcall(function()
+            -- Handle special types
+            if type(value) == "table" then
+                if value.X and value.Y and value.Z then
+                    instance[prop] = Vector3.new(value.X, value.Y, value.Z)
+                elseif value.R and value.G and value.B then
+                    instance[prop] = Color3.new(value.R, value.G, value.B)
+                elseif value.R00 then
+                    instance[prop] = CFrame.new(
+                        value.X, value.Y, value.Z,
+                        value.R00, value.R01, value.R02,
+                        value.R10, value.R11, value.R12,
+                        value.R20, value.R21, value.R22
+                    )
+                elseif value.X and value.Y and value.Width and value.Height then
+                    instance[prop] = UDim2.new(value.X, value.Width, value.Y, value.Height)
+                else
+                    instance[prop] = value
+                end
+            else
+                instance[prop] = value
+            end
+        end)
+    end
+    
+    -- Create children
+    for _, childData in ipairs(data.Children) do
+        CreateInstance(childData, instance)
+    end
+    
+    instance.Parent = parent
+    return instance
+end
 
--- Highlight Part
+-- Highlight part
 local function HighlightPart(part, color, duration)
     if not part or not part.Parent then return end
     
     local highlight = Instance.new("Highlight")
     highlight.Adornee = part
-    highlight.FillColor = color or Color3.fromRGB(0, 180, 216)
-    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.FillColor = color or Colors.Primary
     highlight.FillTransparency = 0.5
+    highlight.OutlineColor = Colors.Text
     highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     highlight.Parent = part
     
@@ -186,174 +837,49 @@ local function HighlightPart(part, color, duration)
     return highlight
 end
 
--- Select Part
+-- Select part
 local function SelectPart(part)
-    if not part or not part:IsA("BasePart") then return end
+    if not part then return end
     
-    -- Clear previous selection highlight
+    -- Clear previous highlight
     if MapSystem.Selected and MapSystem.Selected.Highlight then
         MapSystem.Selected.Highlight:Destroy()
     end
     
     MapSystem.Selected = {
         Part = part,
-        Highlight = MapSystem.Settings.HighlightSelected and HighlightPart(part, Color3.fromRGB(255, 0, 0)) or nil
+        Highlight = HighlightPart(part, Colors.Accent)
     }
     
-    Notify("Selected", part.Name, 1, "success")
+    Notify("Selected", "Selected: " .. part.Name, 2, "success")
 end
 
--- Collect Parts from Model
-local function CollectParts(root, recursive)
-    local parts = {}
-    
-    local function scan(instance)
-        for _, child in ipairs(instance:GetChildren()) do
-            if child:IsA("BasePart") then
-                table.insert(parts, child)
-            end
-            if recursive then
-                scan(child)
-            end
-        end
-    end
-    
-    scan(root)
-    return parts
-end
-
--- Copy Parts
-local function CopyParts(parts)
-    if #parts == 0 then
-        Notify("Error", "No parts to copy!", 2, "error")
+-- Copy selected
+local function CopySelected()
+    if not MapSystem.Selected then
+        Notify("Error", "No part selected!", 2, "error")
         return
     end
     
-    MapSystem.Clipboard = {}
+    MapSystem.Clipboard = {
+        CopyInstance(MapSystem.Selected.Part, MapSystem.Settings.IncludeChildren)
+    }
     
-    for _, part in ipairs(parts) do
-        local data = {
-            Name = part.Name,
-            Class = part.ClassName,
-            Position = part.Position,
-            Size = part.Size,
-            CFrame = part.CFrame,
-            Color = part.BrickColor,
-            Material = part.Material,
-            Color3 = part.Color,
-            Transparency = part.Transparency,
-            Reflectance = part.Reflectance,
-            Anchored = part.Anchored,
-            CanCollide = part.CanCollide,
-            CanTouch = part.CanTouch,
-            Locked = part.Locked,
-            Massless = part.Massless,
-            CustomPhysicalProperties = part.CustomPhysicalProperties,
-            CollisionGroup = part.CollisionGroup,
-            BrickColor = part.BrickColor,
-            Orientation = part.Orientation,
-            Rotation = part.Rotation,
-            Velocity = part.Velocity,
-            RotVelocity = part.RotVelocity,
-            AssemblyMass = part.AssemblyMass,
-            AssemblyLinearVelocity = part.AssemblyLinearVelocity,
-            AssemblyAngularVelocity = part.AssemblyAngularVelocity,
-            Parent = part.Parent,
-            -- Special properties
-            Shape = part.Shape, -- For wedges/cylinders
-            TopSurface = part.TopSurface,
-            BottomSurface = part.BottomSurface,
-            FrontSurface = part.FrontSurface,
-            BackSurface = part.BackSurface,
-            LeftSurface = part.LeftSurface,
-            RightSurface = part.RightSurface,
-        }
-        
-        -- Handle decals and textures
-        data.Decals = {}
-        for _, child in ipairs(part:GetChildren()) do
-            if child:IsA("Decal") or child:IsA("Texture") then
-                table.insert(data.Decals, {
-                    Class = child.ClassName,
-                    Name = child.Name,
-                    Texture = child.Texture,
-                    Color3 = child.Color3,
-                    Transparency = child.Transparency,
-                    Face = child.Face,
-                })
-            end
-        end
-        
-        table.insert(MapSystem.Clipboard, data)
-    end
-    
-    MapSystem.Stats.TotalCopied = MapSystem.Stats.TotalCopied + #parts
-    Notify("Copied", string.format("%d parts copied to clipboard", #parts), 2, "success")
+    MapSystem.Stats.TotalCopied = MapSystem.Stats.TotalCopied + 1
     
     -- Add to history
-    if #MapSystem.History >= MapSystem.Settings.MaxHistory then
-        table.remove(MapSystem.History, 1)
-    end
     table.insert(MapSystem.History, {
         type = "copy",
-        parts = MapSystem.Clipboard,
-        time = os.time(),
+        data = MapSystem.Clipboard,
+        time = os.time()
     })
     MapSystem.HistoryIndex = #MapSystem.History
+    
+    Notify("Copied", "Instance copied to clipboard", 2, "success")
 end
 
--- Create Part from Data
-local function CreatePartFromData(data, position)
-    local part = Instance.new(data.Class or "Part")
-    
-    -- Basic properties
-    part.Name = data.Name .. "_copy"
-    part.Size = data.Size
-    part.CFrame = data.CFrame + (position - data.Position)
-    part.BrickColor = data.BrickColor
-    part.Material = data.Material
-    part.Color = data.Color3
-    part.Transparency = data.Transparency
-    part.Reflectance = data.Reflectance
-    part.Anchored = data.Anchored
-    part.CanCollide = data.CanCollide
-    part.CanTouch = data.CanTouch
-    part.Locked = data.Locked
-    part.Massless = data.Massless
-    
-    -- Surface properties
-    if data.Shape then part.Shape = data.Shape end
-    if data.TopSurface then part.TopSurface = data.TopSurface end
-    if data.BottomSurface then part.BottomSurface = data.BottomSurface end
-    if data.FrontSurface then part.FrontSurface = data.FrontSurface end
-    if data.BackSurface then part.BackSurface = data.BackSurface end
-    if data.LeftSurface then part.LeftSurface = data.LeftSurface end
-    if data.RightSurface then part.RightSurface = data.RightSurface end
-    
-    -- Physics
-    if data.Velocity then part.Velocity = data.Velocity end
-    if data.RotVelocity then part.RotVelocity = data.RotVelocity end
-    if data.CustomPhysicalProperties then
-        part.CustomPhysicalProperties = data.CustomPhysicalProperties
-    end
-    part.CollisionGroup = data.CollisionGroup
-    
-    -- Decals and textures
-    for _, decalData in ipairs(data.Decals or {}) do
-        local decal = Instance.new(decalData.Class)
-        decal.Name = decalData.Name
-        decal.Texture = decalData.Texture
-        decal.Color3 = decalData.Color3
-        decal.Transparency = decalData.Transparency
-        decal.Face = decalData.Face
-        decal.Parent = part
-    end
-    
-    return part
-end
-
--- Paste Parts
-local function PasteParts(position)
+-- Paste at position
+local function PasteAtPosition(position)
     if #MapSystem.Clipboard == 0 then
         Notify("Error", "Clipboard is empty!", 2, "error")
         return
@@ -363,17 +889,7 @@ local function PasteParts(position)
         position = Mouse.Hit.p + MapSystem.Settings.PasteOffset
     end
     
-    -- Apply random offset if enabled
-    if MapSystem.Settings.PasteRandomOffset then
-        local range = MapSystem.Settings.RandomOffsetRange
-        position = position + Vector3.new(
-            math.random(-range * 10, range * 10) / 10,
-            math.random(-range, range),
-            math.random(-range * 10, range * 10) / 10
-        )
-    end
-    
-    -- Snap to grid if enabled
+    -- Snap to grid
     if MapSystem.Settings.SnapToGrid then
         local grid = MapSystem.Settings.GridSize
         position = Vector3.new(
@@ -387,768 +903,293 @@ local function PasteParts(position)
     pastedGroup.Name = "Pasted_" .. os.date("%H%M%S")
     pastedGroup.Parent = Workspace
     
-    local pastedParts = {}
-    
     for _, data in ipairs(MapSystem.Clipboard) do
-        local part = CreatePartFromData(data, position)
-        part.Parent = pastedGroup
-        table.insert(pastedParts, part)
+        local instance = CreateInstance(data, pastedGroup)
         
-        -- Highlight newly pasted parts briefly
-        HighlightPart(part, Color3.fromRGB(0, 255, 0), 1)
+        -- Adjust position if it's a BasePart
+        if instance:IsA("BasePart") then
+            instance.CFrame = instance.CFrame + (position - instance.Position)
+        end
+        
+        -- Highlight briefly
+        if instance:IsA("BasePart") then
+            HighlightPart(instance, Colors.Success, 1)
+        end
     end
     
-    MapSystem.Stats.TotalPasted = MapSystem.Stats.TotalPasted + #MapSystem.Clipboard
-    Notify("Pasted", string.format("%d parts pasted", #MapSystem.Clipboard), 2, "success")
+    MapSystem.Stats.TotalPasted = MapSystem.Stats.TotalPasted + 1
+    Notify("Pasted", "Instance pasted successfully", 2, "success")
     
-    return pastedGroup, pastedParts
+    return pastedGroup
 end
 
--- Save Map
-local function SaveMap(filename)
+-- Save to file
+local function SaveToFile(filename)
     if #MapSystem.Clipboard == 0 then
-        Notify("Error", "No data to save!", 2, "error")
+        Notify("Error", "Nothing to save!", 2, "error")
         return
     end
     
     local saveData = {
-        version = "5.0",
+        version = "6.0",
         date = os.date("%Y-%m-%d %H:%M:%S"),
         author = Player.Name,
-        executor = Executor.name,
-        stats = {
-            parts = #MapSystem.Clipboard,
-            size = string.format("%d bytes", #HttpService:JSONEncode(MapSystem.Clipboard)),
-        },
-        parts = MapSystem.Clipboard,
+        data = MapSystem.Clipboard,
         settings = MapSystem.Settings,
     }
     
-    if not filename then
-        filename = string.format("Map_%s.json", os.date("%Y%m%d_%H%M%S"))
-    end
-    
     if SaveToFile(filename, saveData) then
-        MapSystem.Stats.TotalSaved = MapSystem.Stats.TotalSaved + 1
-        Notify("Saved", string.format("Saved to %s", filename), 3, "success")
-        return true
-    else
-        Notify("Error", "Failed to save file!", 3, "error")
-        return false
+        Notify("Saved", "Saved to " .. filename, 3, "success")
     end
 end
 
--- Load Map
-local function LoadMap(filename)
+-- Load from file
+local function LoadFromFile(filename)
     local data = LoadFromFile(filename)
-    if not data then
-        Notify("Error", "Failed to load file!", 3, "error")
+    if data then
+        MapSystem.Clipboard = data.data
+        MapSystem.Settings = data.settings or MapSystem.Settings
+        Notify("Loaded", "Loaded from " .. filename, 3, "success")
+    end
+end
+
+-- Generate source code
+local function GenerateSource()
+    if #MapSystem.Clipboard == 0 then
+        Notify("Error", "Nothing to export!", 2, "error")
         return
     end
     
-    MapSystem.Clipboard = data.parts
-    MapSystem.Settings = data.settings or MapSystem.Settings
-    
-    MapSystem.Stats.TotalLoaded = MapSystem.Stats.TotalLoaded + 1
-    Notify("Loaded", string.format("Loaded %d parts from %s", #MapSystem.Clipboard, filename), 3, "success")
-    
-    return true
-end
-
--- Undo last operation
-local function Undo()
-    if MapSystem.HistoryIndex <= 1 then
-        Notify("Undo", "Nothing to undo", 2, "warning")
-        return
-    end
-    
-    MapSystem.HistoryIndex = MapSystem.HistoryIndex - 1
-    local lastOp = MapSystem.History[MapSystem.HistoryIndex]
-    
-    if lastOp.type == "copy" then
-        MapSystem.Clipboard = lastOp.parts
-        Notify("Undo", "Restored previous clipboard", 2, "info")
-    end
-end
-
--- Redo last operation
-local function Redo()
-    if MapSystem.HistoryIndex >= #MapSystem.History then
-        Notify("Redo", "Nothing to redo", 2, "warning")
-        return
-    end
-    
-    MapSystem.HistoryIndex = MapSystem.HistoryIndex + 1
-    local nextOp = MapSystem.History[MapSystem.HistoryIndex]
-    
-    if nextOp.type == "copy" then
-        MapSystem.Clipboard = nextOp.parts
-        Notify("Redo", "Restored clipboard", 2, "info")
-    end
-end
-
--- Create Grid
-local function CreateGrid(center, size, spacing)
-    -- Clear existing grid
-    for _, part in ipairs(MapSystem.UI.GridParts) do
-        if part then part:Destroy() end
-    end
-    MapSystem.UI.GridParts = {}
-    
-    if not MapSystem.UI.ShowGrid then return end
-    
-    -- Create grid lines
-    for x = -size, size, spacing do
-        for z = -size, size, spacing do
-            if math.abs(x) <= size and math.abs(z) <= size then
-                local marker = Instance.new("Part")
-                marker.Size = Vector3.new(0.5, 0.1, 0.5)
-                marker.CFrame = CFrame.new(center.X + x, center.Y, center.Z + z)
-                marker.Anchored = true
-                marker.CanCollide = false
-                marker.Transparency = 0.7
-                marker.BrickColor = BrickColor.new("Bright blue")
-                marker.Material = Enum.Material.Neon
-                marker.Parent = Workspace
-                table.insert(MapSystem.UI.GridParts, marker)
-            end
-        end
-    end
-end
-
----------------------------------------------------
---== CREATE MAIN UI WINDOW ==--
----------------------------------------------------
-local Window = WindUI:CreateWindow({
-    Title = "FIQQZR7 MAP COPY SYSTEM",
-    Author = "v5.0 | " .. Executor.name,
-    Icon = "rbxassetid://85977955810367",
-    Folder = "FIQQZR7_MapCopy",
-    Theme = "FIQQZR7 Map Copy",
-    Size = UDim2.fromOffset(600, 500),
-    Transparent = true,
-})
-
--- Tabs
-local MainTab = Window:Tab({ Title = "main", Icon = "home" })
-local EditTab = Window:Tab({ Title = "edit", Icon = "edit" })
-local SettingsTab = Window:Tab({ Title = "settings", Icon = "settings" })
-local HistoryTab = Window:Tab({ Title = "history", Icon = "clock" })
-local ExportTab = Window:Tab({ Title = "export", Icon = "download" })
-local InfoTab = Window:Tab({ Title = "info", Icon = "info" })
-
----------------------------------------------------
---== MAIN TAB ==--
----------------------------------------------------
-MainTab:Paragraph({
-    Title = "📋 CLIPBOARD INFO",
-    Content = function()
-        return string.format("Parts: %d\nSize: %s\nLast Operation: %s",
-            #MapSystem.Clipboard,
-            string.format("%.2f KB", #HttpService:JSONEncode(MapSystem.Clipboard) / 1024),
-            MapSystem.History[MapSystem.HistoryIndex] and MapSystem.History[MapSystem.HistoryIndex].type or "none"
-        )
-    end,
-    Gradient = true
-})
-
-MainTab:Button({
-    Title = "🎯 SELECT PART",
-    Desc = "Click a part to select (F2)",
-    Icon = "mouse-pointer",
-    Callback = function()
-        MapSystem.UI.SelectionMode = true
-        Notify("Selection Mode", "Click any part to select it", 2, "info")
-    end
-})
-
-MainTab:Button({
-    Title = "📋 COPY SELECTED",
-    Desc = "Copy selected part (Ctrl+C)",
-    Icon = "copy",
-    Callback = function()
-        if MapSystem.Selected and MapSystem.Selected.Part then
-            CopyParts({MapSystem.Selected.Part})
-        else
-            Notify("Error", "No part selected!", 2, "error")
-        end
-    end
-})
-
-MainTab:Button({
-    Title = "📋 COPY CHILDREN",
-    Desc = "Copy part with all children",
-    Icon = "copy",
-    Callback = function()
-        if MapSystem.Selected and MapSystem.Selected.Part then
-            local parts = CollectParts(MapSystem.Selected.Part, true)
-            CopyParts(parts)
-        else
-            Notify("Error", "No part selected!", 2, "error")
-        end
-    end
-})
-
-MainTab:Button({
-    Title = "📦 PASTE HERE",
-    Desc = "Paste at mouse position (Ctrl+V)",
-    Icon = "clipboard",
-    Callback = function()
-        PasteParts()
-    end
-})
-
-MainTab:Divider()
-
--- Quick actions row
-local quickFrame = MainTab:Divider()
-
-MainTab:Button({
-    Title = "↩️ UNDO",
-    Desc = "Undo last action",
-    Icon = "rotate-ccw",
-    Callback = Undo
-})
-
-MainTab:Button({
-    Title = "↪️ REDO",
-    Desc = "Redo last action",
-    Icon = "rotate-cw",
-    Callback = Redo
-})
-
-MainTab:Button({
-    Title = "🗑️ CLEAR",
-    Desc = "Clear clipboard",
-    Icon = "trash",
-    Callback = function()
-        MapSystem.Clipboard = {}
-        Notify("Cleared", "Clipboard cleared", 2, "warning")
-    end
-})
-
----------------------------------------------------
---== EDIT TAB ==--
----------------------------------------------------
-EditTab:Paragraph({
-    Title = "✏️ EDIT OPERATIONS",
-    Content = "Apply transformations to clipboard",
-    Gradient = true
-})
-
--- Scale
-EditTab:Slider({
-    Title = "Scale",
-    Desc = "Adjust size of copied parts",
-    Min = 0.1,
-    Max = 10,
-    Default = 1,
-    Decimals = 2,
-    Callback = function(value)
-        for _, data in ipairs(MapSystem.Clipboard) do
-            data.Size = data.Size * value
-        end
-        Notify("Scaled", string.format("Scale set to %.2fx", value), 1, "success")
-    end
-})
-
--- Rotation
-EditTab:Slider({
-    Title = "Rotation X",
-    Desc = "Rotate around X axis",
-    Min = 0,
-    Max = 360,
-    Default = 0,
-    Callback = function(value)
-        local rad = math.rad(value)
-        for _, data in ipairs(MapSystem.Clipboard) do
-            data.CFrame = data.CFrame * CFrame.Angles(rad, 0, 0)
-        end
-    end
-})
-
-EditTab:Slider({
-    Title = "Rotation Y",
-    Desc = "Rotate around Y axis",
-    Min = 0,
-    Max = 360,
-    Default = 0,
-    Callback = function(value)
-        local rad = math.rad(value)
-        for _, data in ipairs(MapSystem.Clipboard) do
-            data.CFrame = data.CFrame * CFrame.Angles(0, rad, 0)
-        end
-    end
-})
-
-EditTab:Slider({
-    Title = "Rotation Z",
-    Desc = "Rotate around Z axis",
-    Min = 0,
-    Max = 360,
-    Default = 0,
-    Callback = function(value)
-        local rad = math.rad(value)
-        for _, data in ipairs(MapSystem.Clipboard) do
-            data.CFrame = data.CFrame * CFrame.Angles(0, 0, rad)
-        end
-    end
-})
-
--- Color
-EditTab:ColorPicker({
-    Title = "Color",
-    Desc = "Change color of copied parts",
-    Default = Color3.fromRGB(255, 255, 255),
-    Callback = function(color)
-        for _, data in ipairs(MapSystem.Clipboard) do
-            data.Color3 = color
-            data.BrickColor = BrickColor.new(color)
-        end
-        Notify("Color changed", "Applied to all parts", 1, "success")
-    end
-})
-
--- Material
-EditTab:Dropdown({
-    Title = "Material",
-    Desc = "Change material of copied parts",
-    Values = {"Plastic", "Wood", "Slate", "Concrete", "CorrodedMetal", "DiamondPlate", "Foil", "Grass", "Ice", "Marble", "Granite", "Brick", "Pebble", "Sand", "Fabric", "SmoothPlastic", "Metal", "WoodPlanks", "Cobblestone", "Rock", "Glacier", "Snow", "Sandstone", "Mud", "Basalt", "Ground", "CrackedLava", "Limestone", "Pavement"},
-    Default = "Plastic",
-    Callback = function(value)
-        local material = Enum.Material[value]
-        for _, data in ipairs(MapSystem.Clipboard) do
-            data.Material = material
-        end
-        Notify("Material changed", "Applied to all parts", 1, "success")
-    end
-})
-
--- Transparency
-EditTab:Slider({
-    Title = "Transparency",
-    Desc = "Adjust transparency",
-    Min = 0,
-    Max = 1,
-    Default = 0,
-    Decimals = 2,
-    Callback = function(value)
-        for _, data in ipairs(MapSystem.Clipboard) do
-            data.Transparency = value
-        end
-    end
-})
-
--- Anchor toggle
-EditTab:Toggle({
-    Title = "Anchor All",
-    Desc = "Toggle anchoring for all parts",
-    Default = true,
-    Callback = function(value)
-        for _, data in ipairs(MapSystem.Clipboard) do
-            data.Anchored = value
-        end
-        Notify("Anchoring", value and "Parts anchored" or "Parts unanchored", 1)
-    end
-})
-
--- Collision toggle
-EditTab:Toggle({
-    Title = "Collision All",
-    Desc = "Toggle collision for all parts",
-    Default = true,
-    Callback = function(value)
-        for _, data in ipairs(MapSystem.Clipboard) do
-            data.CanCollide = value
-        end
-    end
-})
-
-EditTab:Divider()
-
--- Apply to all button
-EditTab:Button({
-    Title = "✓ APPLY CHANGES",
-    Desc = "Preview changes before pasting",
-    Icon = "check",
-    Callback = function()
-        Notify("Applied", "Changes saved to clipboard", 1, "success")
-    end
-})
-
----------------------------------------------------
---== SETTINGS TAB ==--
----------------------------------------------------
-SettingsTab:Paragraph({
-    Title = "⚙️ SYSTEM SETTINGS",
-    Content = "Configure map copy behavior",
-    Gradient = true
-})
-
-SettingsTab:Toggle({
-    Title = "Auto Select",
-    Desc = "Auto-select parts when clicked",
-    Default = MapSystem.Settings.AutoSelect,
-    Callback = function(value)
-        MapSystem.Settings.AutoSelect = value
-    end
-})
-
-SettingsTab:Toggle({
-    Title = "Highlight Selected",
-    Desc = "Show highlight on selected parts",
-    Default = MapSystem.Settings.HighlightSelected,
-    Callback = function(value)
-        MapSystem.Settings.HighlightSelected = value
-        if not value and MapSystem.Selected and MapSystem.Selected.Highlight then
-            MapSystem.Selected.Highlight:Destroy()
-        end
-    end
-})
-
-SettingsTab:Toggle({
-    Title = "Include Children",
-    Desc = "Include child parts when copying",
-    Default = MapSystem.Settings.IncludeChildren,
-    Callback = function(value)
-        MapSystem.Settings.IncludeChildren = value
-    end
-})
-
-SettingsTab:Divider()
-SettingsTab:Paragraph({
-    Title = "📏 PASTE SETTINGS",
-    Content = "Configure paste behavior",
-    Gradient = true
-})
-
--- Offset X
-SettingsTab:Slider({
-    Title = "Offset X",
-    Desc = "Horizontal offset when pasting",
-    Min = -50,
-    Max = 50,
-    Default = MapSystem.Settings.PasteOffset.X,
-    Callback = function(value)
-        MapSystem.Settings.PasteOffset = Vector3.new(value, MapSystem.Settings.PasteOffset.Y, MapSystem.Settings.PasteOffset.Z)
-    end
-})
-
--- Offset Y
-SettingsTab:Slider({
-    Title = "Offset Y",
-    Desc = "Vertical offset when pasting",
-    Min = -50,
-    Max = 50,
-    Default = MapSystem.Settings.PasteOffset.Y,
-    Callback = function(value)
-        MapSystem.Settings.PasteOffset = Vector3.new(MapSystem.Settings.PasteOffset.X, value, MapSystem.Settings.PasteOffset.Z)
-    end
-})
-
--- Offset Z
-SettingsTab:Slider({
-    Title = "Offset Z",
-    Desc = "Depth offset when pasting",
-    Min = -50,
-    Max = 50,
-    Default = MapSystem.Settings.PasteOffset.Z,
-    Callback = function(value)
-        MapSystem.Settings.PasteOffset = Vector3.new(MapSystem.Settings.PasteOffset.X, MapSystem.Settings.PasteOffset.Y, value)
-    end
-})
-
-SettingsTab:Toggle({
-    Title = "Random Offset",
-    Desc = "Add random variation to paste position",
-    Default = MapSystem.Settings.PasteRandomOffset,
-    Callback = function(value)
-        MapSystem.Settings.PasteRandomOffset = value
-    end
-})
-
-SettingsTab:Slider({
-    Title = "Random Range",
-    Desc = "Maximum random offset",
-    Min = 0,
-    Max = 20,
-    Default = MapSystem.Settings.RandomOffsetRange,
-    Callback = function(value)
-        MapSystem.Settings.RandomOffsetRange = value
-    end
-})
-
-SettingsTab:Divider()
-
-SettingsTab:Toggle({
-    Title = "Snap to Grid",
-    Desc = "Snap pasted parts to grid",
-    Default = MapSystem.Settings.SnapToGrid,
-    Callback = function(value)
-        MapSystem.Settings.SnapToGrid = value
-    end
-})
-
-SettingsTab:Slider({
-    Title = "Grid Size",
-    Desc = "Size of grid cells",
-    Min = 1,
-    Max = 20,
-    Default = MapSystem.Settings.GridSize,
-    Callback = function(value)
-        MapSystem.Settings.GridSize = value
-    end
-})
-
-SettingsTab:Toggle({
-    Title = "Show Grid",
-    Desc = "Display visual grid",
-    Default = MapSystem.UI.ShowGrid,
-    Callback = function(value)
-        MapSystem.UI.ShowGrid = value
-        if value then
-            CreateGrid(Vector3.new(0, 0, 0), 50, MapSystem.Settings.GridSize)
-        else
-            for _, part in ipairs(MapSystem.UI.GridParts) do
-                if part then part:Destroy() end
-            end
-            MapSystem.UI.GridParts = {}
-        end
-    end
-})
-
----------------------------------------------------
---== HISTORY TAB ==--
----------------------------------------------------
-HistoryTab:Paragraph({
-    Title = "📜 OPERATION HISTORY",
-    Content = function()
-        return string.format("Total Operations: %d\nCurrent Index: %d/%d",
-            #MapSystem.History,
-            MapSystem.HistoryIndex,
-            #MapSystem.History
-        )
-    end,
-    Gradient = true
-})
-
--- History list
-for i, entry in ipairs(MapSystem.History) do
-    HistoryTab:Button({
-        Title = string.format("[%s] %s", os.date("%H:%M:%S", entry.time), entry.type:upper()),
-        Desc = string.format("%d parts • Index %d", #entry.parts, i),
-        Icon = entry.type == "copy" and "copy" or "edit",
-        Callback = function()
-            MapSystem.HistoryIndex = i
-            MapSystem.Clipboard = entry.parts
-            Notify("History", "Restored operation " .. i, 2, "info")
-        end
-    })
-end
-
----------------------------------------------------
---== EXPORT TAB ==--
----------------------------------------------------
-ExportTab:Paragraph({
-    Title = "📤 EXPORT OPTIONS",
-    Content = "Save or load map data",
-    Gradient = true
-})
-
--- Filename input
-local filenameInput = ExportTab:TextInput({
-    Title = "Filename",
-    Placeholder = "mymap.json",
-    Value = string.format("Map_%s.json", os.date("%Y%m%d_%H%M%S"))
-})
-
-ExportTab:Button({
-    Title = "💾 SAVE TO FILE",
-    Desc = "Save clipboard to JSON file",
-    Icon = "save",
-    Callback = function()
-        SaveMap(filenameInput:GetValue())
-    end
-})
-
-ExportTab:Button({
-    Title = "📂 LOAD FROM FILE",
-    Desc = "Load clipboard from JSON file",
-    Icon = "folder",
-    Callback = function()
-        LoadMap(filenameInput:GetValue())
-    end
-})
-
-ExportTab:Divider()
-
-ExportTab:Button({
-    Title = "📋 COPY TO CLIPBOARD",
-    Desc = "Copy map data as JSON",
-    Icon = "clipboard",
-    Callback = function()
-        local json = HttpService:JSONEncode(MapSystem.Clipboard)
-        if CopyToClipboard(json) then
-            Notify("Copied", "Map data copied to clipboard", 2, "success")
-        else
-            Notify("Error", "Clipboard not supported", 2, "error")
-        end
-    end
-})
-
-ExportTab:Button({
-    Title = "📋 EXPORT AS SCRIPT",
-    Desc = "Generate loadstring script",
-    Icon = "code",
-    Callback = function()
-        local script = string.format([[
--- Auto-generated map load script
-local parts = %s
-
-for _, data in ipairs(parts) do
-    local part = Instance.new(data.Class or "Part")
-    part.Name = data.Name
-    part.Size = Vector3.new(%s)
-    part.CFrame = CFrame.new(%s)
-    part.BrickColor = BrickColor.new(%s)
-    part.Material = Enum.Material.%s
-    part.Transparency = %s
-    part.Anchored = %s
-    part.Parent = workspace
-end
-]],
-HttpService:JSONEncode(MapSystem.Clipboard),
-tostring(MapSystem.Clipboard[1] and MapSystem.Clipboard[1].Size or "0,0,0"),
-tostring(MapSystem.Clipboard[1] and MapSystem.Clipboard[1].Position or "0,0,0"),
-MapSystem.Clipboard[1] and tostring(MapSystem.Clipboard[1].BrickColor) or "White",
-MapSystem.Clipboard[1] and tostring(MapSystem.Clipboard[1].Material):gsub("Enum.Material.", "") or "Plastic",
-MapSystem.Clipboard[1] and MapSystem.Clipboard[1].Transparency or 0,
-MapSystem.Clipboard[1] and tostring(MapSystem.Clipboard[1].Anchored) or "true"
-)
+    local function generateInstanceCode(data, indent)
+        indent = indent or ""
+        local code = indent .. "local instance = Instance.new(\"" .. data.Class .. "\")\n"
+        code = code .. indent .. "instance.Name = \"" .. data.Name .. "\"\n"
         
-        if CopyToClipboard(script) then
-            Notify("Generated", "Load script copied to clipboard", 3, "success")
+        for prop, value in pairs(data.Properties) do
+            if type(value) == "string" then
+                code = code .. indent .. "instance." .. prop .. " = \"" .. value .. "\"\n"
+            elseif type(value) == "number" then
+                code = code .. indent .. "instance." .. prop .. " = " .. value .. "\n"
+            elseif type(value) == "boolean" then
+                code = code .. indent .. "instance." .. prop .. " = " .. tostring(value) .. "\n"
+            elseif type(value) == "table" then
+                if value.X and value.Y and value.Z then
+                    code = code .. indent .. "instance." .. prop .. " = Vector3.new(" .. value.X .. ", " .. value.Y .. ", " .. value.Z .. ")\n"
+                elseif value.R and value.G and value.B then
+                    code = code .. indent .. "instance." .. prop .. " = Color3.new(" .. value.R .. ", " .. value.G .. ", " .. value.B .. ")\n"
+                end
+            end
         end
+        
+        for _, child in ipairs(data.Children) do
+            code = code .. generateInstanceCode(child, indent .. "    ")
+        end
+        
+        return code
     end
-})
+    
+    local source = "-- Generated by FIQQZR7 Map Copy v6.0\n"
+    source = source .. "-- Date: " .. os.date("%Y-%m-%d %H:%M:%S") .. "\n"
+    source = source .. "-- Author: " .. Player.Name .. "\n\n"
+    
+    source = source .. "local Workspace = game:GetService(\"Workspace\")\n"
+    source = source .. "local Group = Instance.new(\"Model\")\n"
+    source = source .. "Group.Name = \"Pasted_" .. os.date("%H%M%S") .. "\"\n"
+    source = source .. "Group.Parent = Workspace\n\n"
+    
+    for i, data in ipairs(MapSystem.Clipboard) do
+        source = source .. "-- Instance " .. i .. "\n"
+        source = source .. generateInstanceCode(data, "")
+        source = source .. "instance.Parent = Group\n\n"
+    end
+    
+    return source
+end
 
 ---------------------------------------------------
---== INFO TAB ==--
+--== BUILD UI PAGES ==--
 ---------------------------------------------------
-InfoTab:Paragraph({
-    Title = "ℹ️ SYSTEM INFORMATION",
-    Content = function()
-        return string.format([[
+
+-- PAGE 1: MAIN
+createSection(Pages[1], "📋 CLIPBOARD INFO")
+
+local infoLabel = Instance.new("TextLabel")
+infoLabel.Size = UDim2.new(1, 0, 0, 60)
+infoLabel.BackgroundColor3 = Colors.Surface
+infoLabel.BackgroundTransparency = 0.3
+infoLabel.Text = string.format("Parts: %d\nSize: %.2f KB", 
+    #MapSystem.Clipboard, 
+    #HttpService:JSONEncode(MapSystem.Clipboard) / 1024)
+infoLabel.TextColor3 = Colors.Text
+infoLabel.TextScaled = true
+infoLabel.Font = Enum.Font.Gotham
+infoLabel.Parent = Pages[1]
+
+local infoCorner = Instance.new("UICorner")
+infoCorner.CornerRadius = UDim.new(0, 8)
+infoCorner.Parent = infoLabel
+
+createSection(Pages[1], "🎯 SELECTION")
+
+createButton(Pages[1], "SELECT PART (F2)", "Click to enter selection mode", Colors.Primary, function()
+    MapSystem.UI.SelectionMode = true
+    Notify("Selection Mode", "Click any part to select it", 2, "info")
+end)
+
+if MapSystem.Selected then
+    createButton(Pages[1], "CURRENT: " .. MapSystem.Selected.Part.Name, "Click to view details", Colors.Success, function() end)
+end
+
+createSection(Pages[1], "📋 COPY / PASTE")
+
+createButton(Pages[1], "COPY SELECTED (Ctrl+C)", "Copy selected instance", Colors.Secondary, CopySelected)
+
+createButton(Pages[1], "PASTE HERE (Ctrl+V)", "Paste at mouse position", Colors.Accent, function()
+    PasteAtPosition()
+end)
+
+-- PAGE 2: EDIT
+createSection(Pages[2], "✏️ EDIT OPERATIONS")
+
+-- Scale slider
+local scaleSlider = createSlider(Pages[2], "Scale", 0.1, 10, 1, function(value)
+    for _, data in ipairs(MapSystem.Clipboard) do
+        if data.Properties.Size then
+            data.Properties.Size = {X = data.Properties.Size.X * value, Y = data.Properties.Size.Y * value, Z = data.Properties.Size.Z * value}
+        end
+    end
+end)
+
+-- Color picker
+createSection(Pages[2], "🎨 COLOR")
+
+local colorPicker = Instance.new("Frame")
+colorPicker.Size = UDim2.new(1, 0, 0, 40)
+colorPicker.BackgroundColor3 = Colors.Surface
+colorPicker.BackgroundTransparency = 0.3
+colorPicker.Parent = Pages[2]
+
+local colorCorner = Instance.new("UICorner")
+colorCorner.CornerRadius = UDim.new(0, 8)
+colorCorner.Parent = colorPicker
+
+-- PAGE 3: SETTINGS
+createSection(Pages[3], "⚙️ COPY SETTINGS")
+
+local includeChildrenToggle = createToggle(Pages[3], "Include Children", "Copy all child instances", MapSystem.Settings.IncludeChildren, function(value)
+    MapSystem.Settings.IncludeChildren = value
+end)
+
+local includePropsToggle = createToggle(Pages[3], "Include Properties", "Copy all instance properties", MapSystem.Settings.IncludeProperties, function(value)
+    MapSystem.Settings.IncludeProperties = value
+end)
+
+createSection(Pages[3], "📏 PASTE SETTINGS")
+
+-- Offset inputs
+createInput(Pages[3], "Offset X", "Horizontal offset", tostring(MapSystem.Settings.PasteOffset.X))
+createInput(Pages[3], "Offset Y", "Vertical offset", tostring(MapSystem.Settings.PasteOffset.Y))
+createInput(Pages[3], "Offset Z", "Depth offset", tostring(MapSystem.Settings.PasteOffset.Z))
+
+local snapToggle = createToggle(Pages[3], "Snap to Grid", "Snap pasted parts to grid", MapSystem.Settings.SnapToGrid, function(value)
+    MapSystem.Settings.SnapToGrid = value
+end)
+
+local gridInput = createInput(Pages[3], "Grid Size", "Size of grid cells", tostring(MapSystem.Settings.GridSize))
+
+-- PAGE 4: HISTORY
+createSection(Pages[4], "📜 OPERATION HISTORY")
+
+for i, entry in ipairs(MapSystem.History) do
+    createButton(Pages[4], string.format("%s - %s", os.date("%H:%M:%S", entry.time), entry.type:upper()), 
+        string.format("%d instances", #entry.data), Colors.Background2, function()
+        MapSystem.HistoryIndex = i
+        MapSystem.Clipboard = entry.data
+        Notify("History", "Restored operation", 2, "success")
+    end)
+end
+
+-- PAGE 5: EXPORT
+createSection(Pages[5], "📤 EXPORT OPTIONS")
+
+local filenameInput = createInput(Pages[5], "Filename", "Enter filename", string.format("Map_%s.json", os.date("%Y%m%d_%H%M%S")))
+
+createButton(Pages[5], "💾 SAVE TO FILE", "Save clipboard to JSON", Colors.Success, function()
+    SaveToFile(filenameInput.Text)
+end)
+
+createButton(Pages[5], "📂 LOAD FROM FILE", "Load clipboard from JSON", Colors.Info, function()
+    LoadFromFile(filenameInput.Text)
+end)
+
+createButton(Pages[5], "📋 COPY SOURCE", "Copy Lua source to clipboard", Colors.Accent, function()
+    local source = GenerateSource()
+    if setclipboard then
+        setclipboard(source)
+        Notify("Copied", "Source code copied to clipboard", 3, "success")
+    end
+end)
+
+-- PAGE 6: INFO
+createSection(Pages[6], "ℹ️ SYSTEM INFO")
+
+local infoText = Instance.new("TextLabel")
+infoText.Size = UDim2.new(1, 0, 0, 200)
+infoText.BackgroundColor3 = Colors.Surface
+infoText.BackgroundTransparency = 0.3
+infoText.Text = string.format([[
 📊 STATISTICS
 ━━━━━━━━━━━━━━━━━━━━
-📋 Parts Copied: %d
-📦 Parts Pasted: %d
-💾 Files Saved: %d
-📂 Files Loaded: %d
-⏱️ Session Time: %s
+Copied: %d
+Pasted: %d
+Session: %s
 
 🖥️ EXECUTOR
 ━━━━━━━━━━━━━━━━━━━━
 Name: %s
 File Support: %s
-Clipboard: %s
 
-⚙️ SETTINGS
+👑 CREDITS
 ━━━━━━━━━━━━━━━━━━━━
-Grid Snap: %s
-Grid Size: %d
-Random Offset: %s
-Auto Save: %s
+FIQQZR7 MAP COPY v6.0
+Author: Fiqqzr7XCode
+Discord: discord.gg/fiqqzr7
 ]],
-            MapSystem.Stats.TotalCopied,
-            MapSystem.Stats.TotalPasted,
-            MapSystem.Stats.TotalSaved,
-            MapSystem.Stats.TotalLoaded,
-            os.date("%H:%M:%S", os.time() - MapSystem.Stats.SessionStart),
-            Executor.name,
-            Executor.supports.files and "✅" or "❌",
-            Executor.supports.clipboard and "✅" or "❌",
-            tostring(MapSystem.Settings.SnapToGrid),
-            MapSystem.Settings.GridSize,
-            tostring(MapSystem.Settings.PasteRandomOffset),
-            tostring(MapSystem.Settings.AutoSave)
-        )
-    end,
-    Gradient = true
-})
+    MapSystem.Stats.TotalCopied,
+    MapSystem.Stats.TotalPasted,
+    os.date("%H:%M:%S", os.time() - MapSystem.Stats.SessionStart),
+    Executor.name,
+    Executor.supports.files and "✅" or "❌"
+)
+infoText.TextColor3 = Colors.Text
+infoText.TextScaled = true
+infoText.Font = Enum.Font.Gotham
+infoText.TextXAlignment = Enum.TextXAlignment.Left
+infoText.Parent = Pages[6]
 
-InfoTab:Paragraph({
-    Title = "📖 KEYBINDS",
-    Content = [[
-F2 - Selection Mode
-Ctrl+C - Copy Selected
-Ctrl+V - Paste at Mouse
-Ctrl+S - Save to File
-Ctrl+Z - Undo
-Ctrl+Y - Redo
-Delete - Clear Selection
-]],
-    Gradient = true
-})
-
-InfoTab:Paragraph({
-    Title = "👑 CREDITS",
-    Content = [[
-FIQQZR7 MAP COPY SYSTEM v5.0
-
-Developed by: Fiqqzr7XCode
-UI Framework: WindUI
-Special Thanks: TeamX Community
-
-📌 Discord: discord.gg/fiqqzr7
-📌 GitHub: Fiqqzr7-Exploits
-
-© 2026 All Rights Reserved
-]],
-    Gradient = true
-})
+local infoTextCorner = Instance.new("UICorner")
+infoTextCorner.CornerRadius = UDim.new(0, 8)
+infoTextCorner.Parent = infoText
 
 ---------------------------------------------------
---== KEYBIND SYSTEM ==--
+--== KEYBINDS ==--
 ---------------------------------------------------
 UserInputService.InputBegan:Connect(function(input, processed)
     if processed then return end
     
-    -- F2 for selection mode
     if input.KeyCode == Enum.KeyCode.F2 then
         MapSystem.UI.SelectionMode = true
         Notify("Selection Mode", "Click any part to select", 2, "info")
     end
     
-    -- Ctrl combinations
     if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
         if input.KeyCode == Enum.KeyCode.C then
-            if MapSystem.Selected and MapSystem.Selected.Part then
-                if MapSystem.Settings.IncludeChildren then
-                    local parts = CollectParts(MapSystem.Selected.Part, true)
-                    CopyParts(parts)
-                else
-                    CopyParts({MapSystem.Selected.Part})
-                end
-            end
+            CopySelected()
         elseif input.KeyCode == Enum.KeyCode.V then
-            PasteParts()
+            PasteAtPosition()
         elseif input.KeyCode == Enum.KeyCode.S then
-            SaveMap()
-        elseif input.KeyCode == Enum.KeyCode.Z then
-            Undo()
-        elseif input.KeyCode == Enum.KeyCode.Y then
-            Redo()
+            SaveToFile(filenameInput.Text)
         end
-    end
-    
-    -- Delete key to clear selection
-    if input.KeyCode == Enum.KeyCode.Delete then
-        if MapSystem.Selected and MapSystem.Selected.Highlight then
-            MapSystem.Selected.Highlight:Destroy()
-        end
-        MapSystem.Selected = nil
-        Notify("Selection Cleared", "No part selected", 1, "info")
     end
 end)
 
@@ -1157,41 +1198,48 @@ Mouse.Button1Down:Connect(function()
     if MapSystem.UI.SelectionMode and Mouse.Target then
         SelectPart(Mouse.Target)
         MapSystem.UI.SelectionMode = false
-    elseif MapSystem.Settings.AutoSelect and Mouse.Target then
-        SelectPart(Mouse.Target)
     end
 end)
 
--- Auto-save timer
-if MapSystem.Settings.AutoSave then
-    task.spawn(function()
-        while true do
-            task.wait(MapSystem.Settings.AutoSaveInterval)
-            if #MapSystem.Clipboard > 0 then
-                SaveMap("autosave_" .. os.date("%Y%m%d_%H%M%S") .. ".json")
-            end
-        end
-    end)
-end
+-- Window controls
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
 
--- Update grid position
-RunService.Heartbeat:Connect(function()
-    if MapSystem.UI.ShowGrid and Camera then
-        CreateGrid(Camera.CFrame.Position, 50, MapSystem.Settings.GridSize)
+MinButton.MouseButton1Click:Connect(function()
+    MainWindow.Visible = not MainWindow.Visible
+end)
+
+-- Make window draggable
+local dragging = false
+local dragOffset
+
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragOffset = input.Position - MainWindow.AbsolutePosition
+    end
+end)
+
+TitleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local newPos = input.Position - dragOffset
+        MainWindow.Position = UDim2.new(0, newPos.X, 0, newPos.Y)
     end
 end)
 
 ---------------------------------------------------
---== WINDOW CONTROLS ==--
+--== INITIALIZATION ==--
 ---------------------------------------------------
-Window:UnlockAll()
-Window:Open()
-Window:SelectTab(1)
-
--- Welcome notification
-Notify("FIQQZR7 MAP COPY SYSTEM", "Version 5.0 loaded successfully!\nPress F2 to start selecting", 5, "success")
+Notify("FIQQZR7 MAP COPY", "System loaded successfully!\nPress F2 to start selecting", 5, "success")
 
 print("╔════════════════════════════════════╗")
-print("║  FIQQZR7 MAP COPY v5.0            ║")
-print("║  Loaded on: " .. Executor.name .. string.rep(" ", 16 - #Executor.name) .. "║")
+print("║  FIQQZR7 MAP COPY v6.0            ║")
+print("║  Loaded successfully!              ║")
 print("╚════════════════════════════════════╝")
