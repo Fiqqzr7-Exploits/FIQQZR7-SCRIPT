@@ -1,0 +1,1031 @@
+--[[
+  EMOTE SNIPER v3.1 - BLACK & RED EDITION
+  - Click sound (rbxassetid://2865227271) plays once per Play/Save click (volume = 1)
+  - Middle pagination label shows "X / TOTAL  emote tersedia"
+  - Next/Prev for Emote tab navigates pages normally and updates X accordingly
+  - Saved tab pagination remains independent
+  - RED GLOW effect (static red)
+  - Black background with dark red accents (better visibility for text)
+  - Circular toggle button with image
+  - 500+ external emotes auto-load
+  - Save/Load system for favorites
+  - Stop on move feature
+  - Smooth animations
+]]
+
+-------------------- HARD RESET --------------------
+local CoreGui = game:GetService("CoreGui")
+pcall(function() if CoreGui:FindFirstChild("EmotePanel") then CoreGui.EmotePanel:Destroy() end end)
+pcall(function() if CoreGui:FindFirstChild("ToggleButton") then CoreGui.ToggleButton:Destroy() end end)
+
+-------------------- SERVICES ----------------------
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local TweenService = game:GetService("TweenService")
+local TeleportService = game:GetService("TeleportService")
+local VirtualUser = game:GetService("VirtualUser")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local animator = humanoid:FindFirstChildOfClass("Animator") or Instance.new("Animator", humanoid)
+
+-------------------- ANTI-AFK --------------------
+player.Idled:Connect(function()
+    VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    wait(1)
+    VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+end)
+
+-------------------- CONFIGURATION --------------------
+local CONFIG = {
+    ScaleFactor = math.clamp(workspace.CurrentCamera.ViewportSize.X / 1920, 0.75, 1.35),
+    RedColor = Color3.fromRGB(200, 40, 40),      -- Bright red for glow
+    DarkRed = Color3.fromRGB(45, 15, 15),        -- Dark red for accents
+    Black = Color3.fromRGB(10, 10, 10),          -- Pure black background
+    DarkGray = Color3.fromRGB(25, 25, 25),       -- Dark gray for cards
+    MediumRed = Color3.fromRGB(55, 20, 20),      -- Medium red for buttons
+    LightRed = Color3.fromRGB(255, 200, 200),    -- Light red for text
+    White = Color3.fromRGB(255, 255, 255),       -- White text
+    GlowThickness = 2,
+    ClickSoundId = "rbxassetid://2865227271",
+    ToggleImageId = "rbxassetid://121503383703144",   -- Cool emoji
+    ExternalUrl = "https://raw.githubusercontent.com/7yd7/sniper-Emote/refs/heads/test/EmoteSniper.json",
+    MaxVisible = 6
+}
+
+-------------------- UTILS -------------------------
+local function round(n)
+    return math.floor(n + 0.5)
+end
+
+local function createCorner(obj, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius or 10)
+    corner.Parent = obj
+    return corner
+end
+
+local function createGlossy(frame, radius)
+    createCorner(frame, radius)
+    
+    local gloss = Instance.new("Frame")
+    gloss.Name = "Gloss"
+    gloss.Parent = frame
+    gloss.BackgroundTransparency = 0.9
+    gloss.BackgroundColor3 = Color3.new(1,1,1)
+    gloss.BorderSizePixel = 0
+    gloss.ZIndex = (frame.ZIndex or 1) + 1
+    gloss.Size = UDim2.new(1,0,0, math.max(6, math.floor((frame.AbsoluteSize.Y/300)*18)))
+
+    local gradient = Instance.new("UIGradient")
+    gradient.Parent = gloss
+    gradient.Rotation = 90
+    gradient.Color = ColorSequence.new(Color3.new(1,1,1), Color3.new(0,0,0))
+    gradient.Transparency = NumberSequence.new{
+        NumberSequenceKeypoint.new(0, 0.9),
+        NumberSequenceKeypoint.new(1, 1)
+    }
+    
+    return gloss
+end
+
+-------------------- ANIMATION CACHE --------------------
+local AnimCache = {}
+local function getRealAnimationId(id)
+    if not id then return nil end
+    if AnimCache[id] then return AnimCache[id] end
+    
+    local success, objects = pcall(function() 
+        return game:GetObjects("rbxassetid://"..tostring(id)) 
+    end)
+    
+    if success and objects and #objects > 0 then
+        local found
+        for _, root in ipairs(objects) do
+            if root:IsA("Animation") and root.AnimationId ~= "" then
+                found = tonumber(root.AnimationId:match("%d+")) or found
+            else
+                for _, descendant in ipairs(root:GetDescendants()) do
+                    if descendant:IsA("Animation") and descendant.AnimationId ~= "" then
+                        found = tonumber(descendant.AnimationId:match("%d+")) or found
+                        if found then break end
+                    end
+                end
+            end
+            pcall(function() root:Destroy() end)
+            if found then break end
+        end
+        AnimCache[id] = found or id
+        return AnimCache[id]
+    end
+    
+    AnimCache[id] = id
+    return id
+end
+
+-------------------- NAME CACHE --------------------
+local NameCache = {}
+local function getAssetName(assetId)
+    if NameCache[assetId] then return NameCache[assetId] end
+    
+    local success, info = pcall(MarketplaceService.GetProductInfo, MarketplaceService, tonumber(assetId))
+    local name = (success and info and info.Name) and info.Name or ("Emote "..tostring(assetId))
+    NameCache[assetId] = name
+    return name
+end
+
+-------------------- SAVE SYSTEM --------------------
+local IO_AVAILABLE = (typeof(readfile) == "function" and typeof(writefile) == "function" and typeof(isfile) == "function")
+local SAVED_FILE = "SavedEmotes.json"
+local POS_FILE = "TogglePos.json"
+local SavedEmotes = {}
+
+local function loadSaved()
+    if IO_AVAILABLE and isfile(SAVED_FILE) then
+        local success, data = pcall(function() 
+            return HttpService:JSONDecode(readfile(SAVED_FILE)) 
+        end)
+        if success and type(data) == "table" then
+            SavedEmotes = data
+        end
+    end
+end
+
+local function saveSaved()
+    if not IO_AVAILABLE then return end
+    pcall(function() 
+        writefile(SAVED_FILE, HttpService:JSONEncode(SavedEmotes)) 
+    end)
+end
+
+loadSaved()
+
+-------------------- PLAYBACK SYSTEM --------------------
+local CurrentTrack = nil
+local StopOnMove = true
+
+local function stopCurrentEmote()
+    if CurrentTrack then
+        pcall(function()
+            CurrentTrack:Stop(0.1)
+            CurrentTrack:Destroy()
+        end)
+        CurrentTrack = nil
+    end
+end
+
+local function playEmote(assetId)
+    stopCurrentEmote()
+    
+    local realId = getRealAnimationId(assetId)
+    if not realId then return end
+    
+    local anim = Instance.new("Animation")
+    anim.AnimationId = "rbxassetid://"..tostring(realId)
+    
+    local success, track = pcall(function() 
+        return animator:LoadAnimation(anim) 
+    end)
+    
+    if success and track then
+        track.Priority = Enum.AnimationPriority.Action
+        track.Looped = true
+        track:Play(0.1, 1, 1)
+        track:AdjustSpeed(1)
+        CurrentTrack = track
+    end
+end
+
+-- Auto-stop when moving
+local lastMoveCheck = 0
+local MOVE_GRACE = 0.15
+local MOVE_THRESHOLD = 0.05
+
+RunService.RenderStepped:Connect(function(deltaTime)
+    if not StopOnMove then return end
+    if not (character and humanoid and CurrentTrack and CurrentTrack.IsPlaying) then return end
+    
+    lastMoveCheck = lastMoveCheck + deltaTime
+    if lastMoveCheck < MOVE_GRACE then return end
+    lastMoveCheck = 0
+    
+    local moveDir = humanoid.MoveDirection
+    local isMoving = (moveDir and moveDir.Magnitude or 0) > MOVE_THRESHOLD
+    local state = humanoid:GetState()
+    local isJumping = (state == Enum.HumanoidStateType.Jumping) or (state == Enum.HumanoidStateType.Freefall)
+    
+    if isMoving or isJumping then
+        stopCurrentEmote()
+    end
+end)
+
+-------------------- CLICK SOUND --------------------
+local function playClickSound()
+    pcall(function()
+        local sound = Instance.new("Sound")
+        sound.SoundId = CONFIG.ClickSoundId
+        sound.Volume = 1
+        sound.PlayOnRemove = false
+        
+        local playerGui = player:FindFirstChild("PlayerGui") or player:WaitForChild("PlayerGui")
+        sound.Parent = playerGui
+        sound:Play()
+        
+        sound.Ended:Connect(function()
+            pcall(function() sound:Destroy() end)
+        end)
+        
+        task.delay(6, function()
+            if sound and sound.Parent then
+                pcall(function() sound:Destroy() end)
+            end
+        end)
+    end)
+end
+
+-------------------- EXTERNAL EMOTE LOADER --------------------
+local emoteCatalog = {}
+local externalTotal = 0
+local externalPage = 1
+
+local function loadExternalEmotes()
+    task.spawn(function()
+        local success, body = pcall(function() 
+            return game:HttpGet(CONFIG.ExternalUrl) 
+        end)
+        
+        if not success or not body or body == "" then
+            warn("Failed to load external emotes")
+            return
+        end
+        
+        local decoded, data = pcall(function() 
+            return HttpService:JSONDecode(body) 
+        end)
+        
+        if not decoded or not data or type(data.data) ~= "table" then
+            warn("Failed to parse external emotes")
+            return
+        end
+        
+        emoteCatalog = {}
+        for _, item in ipairs(data.data) do
+            local id = tonumber(item.id)
+            if id and id > 0 then
+                table.insert(emoteCatalog, {
+                    id = id,
+                    name = item.name or ("Emote "..tostring(id))
+                })
+            end
+        end
+        
+        externalTotal = #emoteCatalog
+        externalPage = 1
+        
+        pcall(function() renderEmotePage() end)
+    end)
+end
+
+-------------------- MAIN GUI --------------------
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "EmotePanel"
+screenGui.IgnoreGuiInset = true
+screenGui.ResetOnSpawn = false
+screenGui.Parent = CoreGui
+screenGui.DisplayOrder = 10000
+screenGui.Enabled = true
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.fromOffset(round(320 * CONFIG.ScaleFactor), round(320 * CONFIG.ScaleFactor))
+Main.Position = UDim2.new(0.5, -Main.Size.X.Offset/2, 0.5, -Main.Size.Y.Offset/2)
+Main.BackgroundColor3 = CONFIG.Black  -- Pure black background
+Main.BackgroundTransparency = 0
+Main.Active = true
+Main.Draggable = false
+Main.Parent = screenGui
+createGlossy(Main, 16)
+
+-- Red glow stroke
+local glowStroke = Instance.new("UIStroke")
+glowStroke.Name = "RedGlow"
+glowStroke.Thickness = CONFIG.GlowThickness
+glowStroke.Color = CONFIG.RedColor
+glowStroke.LineJoinMode = Enum.LineJoinMode.Round
+glowStroke.Parent = Main
+
+-------------------- HEADER --------------------
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, round(40 * CONFIG.ScaleFactor))
+Header.BackgroundColor3 = CONFIG.DarkRed  -- Dark red header
+Header.BackgroundTransparency = 0
+Header.Parent = Main
+createGlossy(Header, 12)
+
+-- Draggable header
+local dragging = false
+local dragInput, dragStart, startPos
+
+local function updateDrag(input)
+    local delta = input.Position - dragStart
+    Main.Position = UDim2.new(
+        startPos.X.Scale, 
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+Header.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+       input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = Main.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+Header.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or
+       input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateDrag(input)
+    end
+end)
+
+-- Close button
+local closeBtn = Instance.new("TextButton")
+closeBtn.AnchorPoint = Vector2.new(1, 0.5)
+closeBtn.Position = UDim2.new(1, -12, 0.5, 0)
+closeBtn.Size = UDim2.fromOffset(round(24 * CONFIG.ScaleFactor), round(24 * CONFIG.ScaleFactor))
+closeBtn.Text = "✕"
+closeBtn.TextSize = round(16 * CONFIG.ScaleFactor)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextColor3 = CONFIG.White
+closeBtn.BackgroundColor3 = CONFIG.MediumRed
+closeBtn.Parent = Header
+createGlossy(closeBtn, 6)
+
+closeBtn.MouseEnter:Connect(function()
+    TweenService:Create(closeBtn, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.RedColor}):Play()
+end)
+
+closeBtn.MouseLeave:Connect(function()
+    TweenService:Create(closeBtn, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.MediumRed}):Play()
+end)
+
+closeBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+    local toggle = CoreGui:FindFirstChild("ToggleButton")
+    if toggle then toggle:Destroy() end
+end)
+
+-- Stop on move toggle
+local stopBtn = Instance.new("TextButton")
+stopBtn.Size = UDim2.fromOffset(round(70 * CONFIG.ScaleFactor), round(26 * CONFIG.ScaleFactor))
+stopBtn.Position = UDim2.new(1, -90, 0.5, 0)
+stopBtn.AnchorPoint = Vector2.new(1, 0.5)
+stopBtn.BackgroundColor3 = StopOnMove and CONFIG.DarkRed or CONFIG.DarkGray
+stopBtn.Text = StopOnMove and "FIQQZR7EMOTE" or "FIQQZR7 EMOTE"
+stopBtn.TextSize = round(12 * CONFIG.ScaleFactor)
+stopBtn.Font = Enum.Font.GothamBold
+stopBtn.TextColor3 = CONFIG.White
+stopBtn.Parent = Header
+createGlossy(stopBtn, 8)
+
+stopBtn.MouseButton1Click:Connect(function()
+    StopOnMove = not StopOnMove
+    stopBtn.BackgroundColor3 = StopOnMove and CONFIG.DarkRed or CONFIG.DarkGray
+    stopBtn.Text = StopOnMove and "STOP-ON" or "STOP-OFF"
+end)
+
+-------------------- TABS --------------------
+local TabsBar = Instance.new("Frame")
+TabsBar.Size = UDim2.new(1, -16, 0, round(36 * CONFIG.ScaleFactor))
+TabsBar.Position = UDim2.new(0, 8, 0, round(48 * CONFIG.ScaleFactor))
+TabsBar.BackgroundTransparency = 1
+TabsBar.Parent = Main
+
+local function createTab(text, xScale, xOffset)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1/2, -4, 1, 0)
+    btn.Position = UDim2.new(xScale, xOffset, 0, 0)
+    btn.BackgroundColor3 = CONFIG.DarkGray
+    btn.BackgroundTransparency = 0
+    btn.Text = text
+    btn.TextSize = round(14 * CONFIG.ScaleFactor)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextColor3 = CONFIG.White
+    btn.Parent = TabsBar
+    createGlossy(btn, 10)
+    
+    btn.MouseEnter:Connect(function()
+        if btn.BackgroundColor3 ~= CONFIG.DarkRed then
+            TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.MediumRed}):Play()
+        end
+    end)
+    
+    btn.MouseLeave:Connect(function()
+        if btn.BackgroundColor3 ~= CONFIG.DarkRed then
+            TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.DarkGray}):Play()
+        end
+    end)
+    
+    return btn
+end
+
+local tabEmote = createTab("EMOTE", 0, 0)
+local tabSaved = createTab("SAVED", 1/2, 4)
+
+-------------------- CONTENT AREA --------------------
+local Content = Instance.new("Frame")
+Content.Size = UDim2.new(1, -16, 1, -(
+    round(48 * CONFIG.ScaleFactor) + 
+    round(36 * CONFIG.ScaleFactor) + 
+    round(60 * CONFIG.ScaleFactor)
+))
+Content.Position = UDim2.new(
+    0, 8, 
+    0, round(48 * CONFIG.ScaleFactor) + round(36 * CONFIG.ScaleFactor) + round(8 * CONFIG.ScaleFactor)
+)
+Content.BackgroundTransparency = 1
+Content.Parent = Main
+
+-------------------- BOTTOM BAR --------------------
+local BottomBar = Instance.new("Frame")
+BottomBar.Size = UDim2.new(1, -16, 0, round(36 * CONFIG.ScaleFactor))
+BottomBar.Position = UDim2.new(0, 8, 1, -round(44 * CONFIG.ScaleFactor))
+BottomBar.BackgroundTransparency = 1
+BottomBar.Parent = Main
+
+-- Previous button
+local prevBtn = Instance.new("TextButton")
+prevBtn.Size = UDim2.new(0.28, 0, 1, 0)
+prevBtn.Position = UDim2.new(0, 0, 0, 0)
+prevBtn.BackgroundColor3 = CONFIG.DarkGray
+prevBtn.BackgroundTransparency = 0
+prevBtn.Text = "<  PREV"
+prevBtn.TextSize = round(12 * CONFIG.ScaleFactor)
+prevBtn.Font = Enum.Font.GothamBold
+prevBtn.TextColor3 = CONFIG.White
+prevBtn.Parent = BottomBar
+createGlossy(prevBtn, 8)
+
+prevBtn.MouseEnter:Connect(function()
+    TweenService:Create(prevBtn, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.MediumRed}):Play()
+end)
+
+prevBtn.MouseLeave:Connect(function()
+    TweenService:Create(prevBtn, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.DarkGray}):Play()
+end)
+
+-- Page label
+local pageLabel = Instance.new("TextLabel")
+pageLabel.Size = UDim2.new(0.44, 0, 1, 0)
+pageLabel.Position = UDim2.new(0.28, 0, 0, 0)
+pageLabel.BackgroundColor3 = CONFIG.DarkGray
+pageLabel.BackgroundTransparency = 0
+pageLabel.TextSize = round(12 * CONFIG.ScaleFactor)
+pageLabel.Font = Enum.Font.GothamBold
+pageLabel.TextColor3 = CONFIG.LightRed
+pageLabel.Text = ""
+pageLabel.BorderSizePixel = 0
+pageLabel.Parent = BottomBar
+createGlossy(pageLabel, 8)
+
+-- Next button
+local nextBtn = Instance.new("TextButton")
+nextBtn.Size = UDim2.new(0.28, 0, 1, 0)
+nextBtn.Position = UDim2.new(0.72, 0, 0, 0)
+nextBtn.BackgroundColor3 = CONFIG.DarkGray
+nextBtn.BackgroundTransparency = 0
+nextBtn.Text = "NEXT  >"
+nextBtn.TextSize = round(12 * CONFIG.ScaleFactor)
+nextBtn.Font = Enum.Font.GothamBold
+nextBtn.TextColor3 = CONFIG.White
+nextBtn.Parent = BottomBar
+createGlossy(nextBtn, 8)
+
+nextBtn.MouseEnter:Connect(function()
+    TweenService:Create(nextBtn, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.MediumRed}):Play()
+end)
+
+nextBtn.MouseLeave:Connect(function()
+    TweenService:Create(nextBtn, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.DarkGray}):Play()
+end)
+
+-------------------- GRID PANES --------------------
+local function createPane()
+    local pane = Instance.new("Frame")
+    pane.Size = UDim2.new(1, 0, 1, 0)
+    pane.BackgroundTransparency = 1
+    
+    local grid = Instance.new("ScrollingFrame")
+    grid.Parent = pane
+    grid.Size = UDim2.new(1, 0, 1, 0)
+    grid.BackgroundTransparency = 1
+    grid.ScrollBarThickness = round(4 * CONFIG.ScaleFactor)
+    grid.CanvasSize = UDim2.new(0, 0, 0, 0)
+    grid.ScrollBarImageColor3 = CONFIG.RedColor
+    
+    local layout = Instance.new("UIGridLayout")
+    layout.Parent = grid
+    layout.CellSize = UDim2.fromOffset(round(100 * CONFIG.ScaleFactor), round(130 * CONFIG.ScaleFactor))
+    layout.CellPadding = UDim2.fromOffset(round(8 * CONFIG.ScaleFactor), round(8 * CONFIG.ScaleFactor))
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        grid.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + round(6 * CONFIG.ScaleFactor))
+    end)
+    
+    return pane, grid
+end
+
+local paneEmote, gridEmote = createPane()
+paneEmote.Parent = Content
+
+local paneSaved, gridSaved = createPane()
+paneSaved.Parent = Content
+paneSaved.Visible = false
+
+-------------------- CARD CREATOR --------------------
+local function createEmoteCard(id, nameText, onPlay, onAction, actionMode, parentGrid)
+    local card = Instance.new("Frame")
+    card.Size = UDim2.fromOffset(round(100 * CONFIG.ScaleFactor), round(130 * CONFIG.ScaleFactor))
+    card.BackgroundColor3 = CONFIG.DarkGray  -- Dark gray for better contrast
+    card.BackgroundTransparency = 0
+    card.Parent = parentGrid
+    createGlossy(card, 10)
+    
+    -- Hover effect
+    card.MouseEnter:Connect(function()
+        TweenService:Create(card, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.MediumRed}):Play()
+    end)
+    
+    card.MouseLeave:Connect(function()
+        TweenService:Create(card, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.DarkGray}):Play()
+    end)
+    
+    -- Thumbnail
+    local thumbnail = Instance.new("ImageLabel")
+    thumbnail.Parent = card
+    thumbnail.BackgroundTransparency = 1
+    thumbnail.Size = UDim2.new(1, -round(12 * CONFIG.ScaleFactor), 0, round(65 * CONFIG.ScaleFactor))
+    thumbnail.Position = UDim2.new(0, round(6 * CONFIG.ScaleFactor), 0, round(6 * CONFIG.ScaleFactor))
+    pcall(function()
+        thumbnail.Image = "rbxthumb://type=Asset&id="..tostring(id).."&w=150&h=150"
+    end)
+    
+    -- Name (with white text for visibility)
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Parent = card
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Size = UDim2.new(1, -round(8 * CONFIG.ScaleFactor), 0, round(30 * CONFIG.ScaleFactor))
+    nameLabel.Position = UDim2.new(0, round(4 * CONFIG.ScaleFactor), 0, round(72 * CONFIG.ScaleFactor))
+    nameLabel.Font = Enum.Font.GothamBold
+    nameLabel.TextSize = round(10 * CONFIG.ScaleFactor)
+    nameLabel.TextWrapped = true
+    nameLabel.TextColor3 = CONFIG.White  -- White text for better visibility
+    nameLabel.Text = nameText or "Unknown"
+    
+    -- Play button
+    local playBtn = Instance.new("TextButton")
+    playBtn.Parent = card
+    playBtn.Size = UDim2.new(0.45, -round(2 * CONFIG.ScaleFactor), 0, round(20 * CONFIG.ScaleFactor))
+    playBtn.Position = UDim2.new(0, round(4 * CONFIG.ScaleFactor), 1, -round(24 * CONFIG.ScaleFactor))
+    playBtn.BackgroundColor3 = CONFIG.DarkRed
+    playBtn.Text = "▶ PLAY"
+    playBtn.TextSize = round(8 * CONFIG.ScaleFactor)
+    playBtn.Font = Enum.Font.GothamBold
+    playBtn.TextColor3 = CONFIG.White
+    createGlossy(playBtn, 6)
+    
+    -- Action button (Save/Remove)
+    local actionBtn = Instance.new("TextButton")
+    actionBtn.Parent = card
+    actionBtn.Size = UDim2.new(0.45, -round(2 * CONFIG.ScaleFactor), 0, round(20 * CONFIG.ScaleFactor))
+    actionBtn.Position = UDim2.new(0.55, 0, 1, -round(24 * CONFIG.ScaleFactor))
+    actionBtn.BackgroundColor3 = (actionMode == "remove") and CONFIG.RedColor or CONFIG.DarkRed
+    actionBtn.Text = (actionMode == "remove") and "✕ RM" or "☆ SAVE"
+    actionBtn.TextSize = round(8 * CONFIG.ScaleFactor)
+    actionBtn.Font = Enum.Font.GothamBold
+    actionBtn.TextColor3 = CONFIG.White
+    createGlossy(actionBtn, 6)
+    
+    -- Button hover effects
+    playBtn.MouseEnter:Connect(function()
+        TweenService:Create(playBtn, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.RedColor}):Play()
+    end)
+    playBtn.MouseLeave:Connect(function()
+        TweenService:Create(playBtn, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.DarkRed}):Play()
+    end)
+    
+    actionBtn.MouseEnter:Connect(function()
+        TweenService:Create(actionBtn, TweenInfo.new(0.2), {BackgroundColor3 = CONFIG.RedColor}):Play()
+    end)
+    actionBtn.MouseLeave:Connect(function()
+        local targetColor = (actionMode == "remove") and CONFIG.RedColor or CONFIG.DarkRed
+        TweenService:Create(actionBtn, TweenInfo.new(0.2), {BackgroundColor3 = targetColor}):Play()
+    end)
+    
+    playBtn.MouseButton1Click:Connect(function()
+        pcall(onPlay, id)
+        playClickSound()
+    end)
+    
+    actionBtn.MouseButton1Click:Connect(function()
+        pcall(onAction, id, actionBtn)
+        playClickSound()
+    end)
+    
+    return card
+end
+
+-------------------- RENDER FUNCTIONS --------------------
+local activeTab = "emote"
+
+local function updatePageLabel()
+    if activeTab ~= "emote" then
+        pageLabel.Text = ""
+        return
+    end
+    
+    if externalTotal == 0 then
+        pageLabel.Text = "0 / 0  EMOTE"
+        return
+    end
+    
+    local lastIndex = math.min(externalPage * CONFIG.MaxVisible, externalTotal)
+    pageLabel.Text = string.format("%d / %d  EMOTE", lastIndex, externalTotal)
+end
+
+function renderEmotePage()
+    for _, child in ipairs(gridEmote:GetChildren()) do
+        if child:IsA("Frame") then
+            child:Destroy()
+        end
+    end
+    
+    if externalTotal == 0 then
+        local loadingLabel = Instance.new("TextLabel")
+        loadingLabel.Size = UDim2.new(1, 0, 0, round(22 * CONFIG.ScaleFactor))
+        loadingLabel.Position = UDim2.new(0, 0, 0.5, -round(11 * CONFIG.ScaleFactor))
+        loadingLabel.BackgroundTransparency = 1
+        loadingLabel.Text = "LOADING EMOTES..."
+        loadingLabel.Font = Enum.Font.GothamBold
+        loadingLabel.TextSize = round(14 * CONFIG.ScaleFactor)
+        loadingLabel.TextColor3 = CONFIG.LightRed
+        loadingLabel.Parent = gridEmote
+        updatePageLabel()
+        return
+    end
+    
+    local totalPages = math.max(1, math.ceil(externalTotal / CONFIG.MaxVisible))
+    externalPage = math.clamp(externalPage, 1, totalPages)
+    
+    local startIdx = (externalPage - 1) * CONFIG.MaxVisible + 1
+    local endIdx = math.min(externalPage * CONFIG.MaxVisible, externalTotal)
+    
+    for i = startIdx, endIdx do
+        local item = emoteCatalog[i]
+        if item then
+            createEmoteCard(
+                item.id,
+                item.name or getAssetName(item.id),
+                function(id) playEmote(id) end,
+                function(id, btn)
+                    local animIdStr = "rbxassetid://"..tostring(getRealAnimationId(id))
+                    
+                    for _, saved in ipairs(SavedEmotes) do
+                        if saved.id == id then
+                            btn.Text = "✓"
+                            task.delay(0.5, function()
+                                if btn then btn.Text = "☆ SAVE" end
+                            end)
+                            return
+                        end
+                    end
+                    
+                    table.insert(SavedEmotes, {
+                        id = id,
+                        name = item.name or getAssetName(item.id),
+                        AnimationId = animIdStr
+                    })
+                    saveSaved()
+                    
+                    btn.Text = "✓ SAVED"
+                    btn.BackgroundColor3 = CONFIG.DarkRed
+                    
+                    task.delay(0.4, function()
+                        if btn then
+                            btn.Text = "☆ SAVE"
+                            btn.BackgroundColor3 = CONFIG.DarkRed
+                        end
+                    end)
+                end,
+                "save",
+                gridEmote
+            )
+        end
+    end
+    
+    updatePageLabel()
+end
+
+local savedPage = 1
+
+function renderSavedPage()
+    for _, child in ipairs(gridSaved:GetChildren()) do
+        if child:IsA("Frame") then
+            child:Destroy()
+        end
+    end
+    
+    if #SavedEmotes == 0 then
+        local emptyLabel = Instance.new("TextLabel")
+        emptyLabel.Size = UDim2.new(1, 0, 0, round(22 * CONFIG.ScaleFactor))
+        emptyLabel.Position = UDim2.new(0, 0, 0.5, -round(11 * CONFIG.ScaleFactor))
+        emptyLabel.BackgroundTransparency = 1
+        emptyLabel.Text = "NO SAVED EMOTES"
+        emptyLabel.Font = Enum.Font.GothamBold
+        emptyLabel.TextSize = round(14 * CONFIG.ScaleFactor)
+        emptyLabel.TextColor3 = CONFIG.LightRed
+        emptyLabel.Parent = gridSaved
+        return
+    end
+    
+    savedPage = math.clamp(savedPage, 1, math.max(1, math.ceil(#SavedEmotes / CONFIG.MaxVisible)))
+    
+    local startIdx = (savedPage - 1) * CONFIG.MaxVisible + 1
+    local endIdx = math.min(savedPage * CONFIG.MaxVisible, #SavedEmotes)
+    
+    for i = startIdx, endIdx do
+        local item = SavedEmotes[i]
+        if item then
+            createEmoteCard(
+                item.id,
+                item.name or getAssetName(item.id),
+                function()
+                    if item.AnimationId then
+                        stopCurrentEmote()
+                        local anim = Instance.new("Animation")
+                        anim.AnimationId = item.AnimationId
+                        local success, track = pcall(function() 
+                            return animator:LoadAnimation(anim) 
+                        end)
+                        if success and track then
+                            track.Priority = Enum.AnimationPriority.Action
+                            track.Looped = true
+                            track:Play(0.1, 1, 1)
+                            track:AdjustSpeed(1)
+                            CurrentTrack = track
+                        end
+                    else
+                        playEmote(item.id)
+                    end
+                end,
+                function(_, btn)
+                    table.remove(SavedEmotes, i)
+                    saveSaved()
+                    if (savedPage - 1) * CONFIG.MaxVisible >= #SavedEmotes and savedPage > 1 then
+                        savedPage = savedPage - 1
+                    end
+                    renderSavedPage()
+                end,
+                "remove",
+                gridSaved
+            )
+        end
+    end
+end
+
+-------------------- TAB SWITCHING --------------------
+local function switchTab(tab)
+    activeTab = tab
+    paneEmote.Visible = (tab == "emote")
+    paneSaved.Visible = (tab == "saved")
+    
+    local emoteColor = (tab == "emote") and CONFIG.DarkRed or CONFIG.DarkGray
+    local savedColor = (tab == "saved") and CONFIG.DarkRed or CONFIG.DarkGray
+    
+    TweenService:Create(tabEmote, TweenInfo.new(0.2), {BackgroundColor3 = emoteColor}):Play()
+    TweenService:Create(tabSaved, TweenInfo.new(0.2), {BackgroundColor3 = savedColor}):Play()
+    
+    stopCurrentEmote()
+    
+    if tab == "emote" then
+        renderEmotePage()
+    else
+        renderSavedPage()
+    end
+    
+    updatePageLabel()
+end
+
+tabEmote.MouseButton1Click:Connect(function() switchTab("emote") end)
+tabSaved.MouseButton1Click:Connect(function() switchTab("saved") end)
+
+-------------------- PAGINATION --------------------
+nextBtn.MouseButton1Click:Connect(function()
+    if activeTab == "saved" then
+        if #SavedEmotes == 0 then return end
+        local maxPage = math.max(1, math.ceil(#SavedEmotes / CONFIG.MaxVisible))
+        savedPage = (savedPage < maxPage) and (savedPage + 1) or 1
+        renderSavedPage()
+        return
+    end
+    
+    if externalTotal > 0 then
+        local maxPage = math.max(1, math.ceil(externalTotal / CONFIG.MaxVisible))
+        externalPage = (externalPage < maxPage) and (externalPage + 1) or 1
+        renderEmotePage()
+    end
+end)
+
+prevBtn.MouseButton1Click:Connect(function()
+    if activeTab == "saved" then
+        if #SavedEmotes == 0 then return end
+        local maxPage = math.max(1, math.ceil(#SavedEmotes / CONFIG.MaxVisible))
+        savedPage = (savedPage > 1) and (savedPage - 1) or maxPage
+        renderSavedPage()
+        return
+    end
+    
+    if externalTotal > 0 then
+        local maxPage = math.max(1, math.ceil(externalTotal / CONFIG.MaxVisible))
+        externalPage = (externalPage > 1) and (externalPage - 1) or maxPage
+        renderEmotePage()
+    end
+end)
+
+-------------------- CIRCULAR TOGGLE BUTTON --------------------
+local toggleGui = Instance.new("ScreenGui")
+toggleGui.Name = "ToggleButton"
+toggleGui.ResetOnSpawn = false
+toggleGui.Parent = CoreGui
+toggleGui.DisplayOrder = 10001
+toggleGui.IgnoreGuiInset = true
+
+local toggleBtn = Instance.new("ImageButton")
+toggleBtn.Parent = toggleGui
+toggleBtn.Size = UDim2.new(0, 60, 0, 60)
+toggleBtn.Position = UDim2.new(0, 20, 0.5, -30)
+toggleBtn.BackgroundColor3 = CONFIG.Black
+toggleBtn.BackgroundTransparency = 0
+toggleBtn.Active = true
+toggleBtn.BorderSizePixel = 0
+toggleBtn.Image = CONFIG.ToggleImageId
+toggleBtn.ImageColor3 = CONFIG.White
+
+-- Circular shape
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(1, 0)
+toggleCorner.Parent = toggleBtn
+
+createGlossy(toggleBtn, 30)
+
+-- Red glow for toggle
+local toggleGlow = Instance.new("UIStroke")
+toggleGlow.Name = "RedGlow"
+toggleGlow.Thickness = CONFIG.GlowThickness
+toggleGlow.Color = CONFIG.RedColor
+toggleGlow.LineJoinMode = Enum.LineJoinMode.Round
+toggleGlow.Parent = toggleBtn
+
+-- Inner image
+local innerImage = Instance.new("ImageLabel")
+innerImage.Size = UDim2.new(1, -4, 1, -4)
+innerImage.Position = UDim2.new(0, 2, 0, 2)
+innerImage.BackgroundTransparency = 1
+innerImage.Image = CONFIG.ToggleImageId
+innerImage.ImageColor3 = CONFIG.LightRed
+innerImage.Parent = toggleBtn
+
+local innerCorner = Instance.new("UICorner")
+innerCorner.CornerRadius = UDim.new(1, 0)
+innerCorner.Parent = innerImage
+
+-- Dragging
+local toggleDragging = false
+local toggleDragStart, toggleStartPos
+
+toggleBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or 
+       input.UserInputType == Enum.UserInputType.Touch then
+        toggleDragging = true
+        toggleDragStart = input.Position
+        toggleStartPos = toggleBtn.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                toggleDragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if toggleDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or 
+                          input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - toggleDragStart
+        toggleBtn.Position = UDim2.new(
+            toggleStartPos.X.Scale,
+            toggleStartPos.X.Offset + delta.X,
+            toggleStartPos.Y.Scale,
+            toggleStartPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+toggleBtn.MouseButton1Click:Connect(function()
+    screenGui.Enabled = not screenGui.Enabled
+    
+    -- Scale animation
+    TweenService:Create(toggleBtn, TweenInfo.new(0.15), {Size = UDim2.new(0, 50, 0, 50)}):Play()
+    TweenService:Create(innerImage, TweenInfo.new(0.15), {Size = UDim2.new(1, -4, 1, -4)}):Play()
+    
+    task.wait(0.15)
+    
+    TweenService:Create(toggleBtn, TweenInfo.new(0.15), {Size = UDim2.new(0, 60, 0, 60)}):Play()
+    TweenService:Create(innerImage, TweenInfo.new(0.15), {Size = UDim2.new(1, -4, 1, -4)}):Play()
+end)
+
+-- Save position
+local function saveTogglePosition()
+    if not IO_AVAILABLE then return end
+    
+    local pos = toggleBtn.AbsolutePosition
+    local data = {x = pos.X, y = pos.Y}
+    pcall(function()
+        writefile(POS_FILE, HttpService:JSONEncode(data))
+    end)
+end
+
+-- Load saved position
+pcall(function()
+    if IO_AVAILABLE and isfile(POS_FILE) then
+        local data = HttpService:JSONDecode(readfile(POS_FILE))
+        if type(data) == "table" and data.x and data.y then
+            toggleBtn.Position = UDim2.fromOffset(data.x, data.y)
+        end
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if toggleDragging and (input.UserInputType == Enum.UserInputType.MouseButton1 or 
+                          input.UserInputType == Enum.UserInputType.Touch) then
+        toggleDragging = false
+        saveTogglePosition()
+    end
+end)
+
+-------------------- INITIALIZATION --------------------
+loadExternalEmotes()
+renderEmotePage()
+updatePageLabel()
+
+-- Resize handling for glossy effect
+local resizeDebounce = false
+Main:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+    if resizeDebounce then return end
+    resizeDebounce = true
+    task.wait(0.1)
+    
+    local gloss = Main:FindFirstChild("Gloss")
+    if gloss then gloss:Destroy() end
+    createGlossy(Main, 16)
+    
+    resizeDebounce = false
+end)
+
+Header:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+    if resizeDebounce then return end
+    resizeDebounce = true
+    task.wait(0.1)
+    
+    local gloss = Header:FindFirstChild("Gloss")
+    if gloss then gloss:Destroy() end
+    createGlossy(Header, 12)
+    
+    resizeDebounce = false
+end)
+
+print("✅ Emote Sniper v3.1 - Black & Red Edition Loaded!")
+print("📁 Saved emotes:", #SavedEmotes)
+print("🎮 Press toggle button to show/hide GUI")
+print("📝 Text visibility improved with white text on dark backgrounds")
