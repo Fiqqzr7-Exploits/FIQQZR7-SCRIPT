@@ -1,0 +1,389 @@
+--------------------------------------------------
+-- 👑 FIQQZR7TITLE • MODERN GLOW UI
+--------------------------------------------------
+
+-- SERVICES
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+
+repeat task.wait() until player.Character
+repeat task.wait() until player:FindFirstChild("PlayerGui")
+
+--------------------------------------------------
+-- ZOOM CONFIG
+--------------------------------------------------
+local ZOOM_HIDE_NEAR = 6
+local ZOOM_SHOW_MIN = 8
+local ZOOM_SHOW_MAX = 28
+local ZOOM_HIDE_FAR = 34
+
+--------------------------------------------------
+-- TITLE SYSTEM
+--------------------------------------------------
+local Titles = {}
+local Labels = {}
+local Billboard
+
+local function setupBillboard()
+    if Billboard then Billboard:Destroy() end
+    if not player.Character then return end
+    local head = player.Character:FindFirstChild("Head")
+    if not head then return end
+    
+    Billboard = Instance.new("BillboardGui")
+    Billboard.Name = "FIQQZR7_TITLE"
+    Billboard.Adornee = head
+    Billboard.AlwaysOnTop = true
+    Billboard.StudsOffset = Vector3.new(0,4.2,0)
+    Billboard.MaxDistance = 200
+    Billboard.Parent = head
+    
+    local layout = Instance.new("UIListLayout", Billboard)
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    layout.Padding = UDim.new(0,2)
+end
+
+local function rebuildTitles()
+    setupBillboard()
+    if not Billboard then return end
+    
+    for _,l in ipairs(Labels) do l:Destroy() end
+    table.clear(Labels)
+    
+    Billboard.Size = UDim2.fromOffset(320,(#Titles*24)+6)
+    
+    for _,v in ipairs(Titles) do
+        local t = Instance.new("TextLabel")
+        t.Size = UDim2.new(1,0,0,22)
+        t.BackgroundTransparency = 1
+        t.Text = v.text
+        t.Font = Enum.Font.GothamBold
+        t.TextSize = 20
+        t.TextStrokeTransparency = 0.12
+        t.TextStrokeColor3 = Color3.new(0,0,0)
+        t.TextColor3 = v.color
+        t:SetAttribute("Rainbow", v.rainbow)
+        t.Parent = Billboard
+        table.insert(Labels, t)
+    end
+end
+
+--------------------------------------------------
+-- RGB + ZOOM LOGIC
+--------------------------------------------------
+RunService.RenderStepped:Connect(function()
+    local t = tick() * 0.32
+    
+    for i,label in ipairs(Labels) do
+        if label:GetAttribute("Rainbow") then
+            local hue = (t + i * 0.16) % 1
+            label.TextColor3 = Color3.fromHSV(hue, 0.9, 1)
+            label.TextStrokeColor3 = Color3.fromHSV((hue + 0.02) % 1, 1, 0.2)
+        end
+    end
+
+    if Billboard and player.Character and player.Character:FindFirstChild("Head") then
+        local dist = (camera.CFrame.Position - player.Character.Head.Position).Magnitude
+        
+        if dist < ZOOM_HIDE_NEAR then
+            Billboard.Enabled = false
+        elseif dist >= ZOOM_SHOW_MIN and dist <= ZOOM_SHOW_MAX then
+            Billboard.Enabled = true
+        elseif dist > ZOOM_HIDE_FAR then
+            Billboard.Enabled = false
+        else
+            Billboard.Enabled = true
+        end
+    end
+end)
+
+player.CharacterAdded:Connect(function()
+    task.wait(0.4)
+    rebuildTitles()
+end)
+
+local function addTitle(text,rainbow,color)
+    table.insert(Titles,{text=text,rainbow=rainbow,color=color})
+    rebuildTitles()
+end
+
+local function clearTitles()
+    table.clear(Titles)
+    rebuildTitles()
+end
+
+--------------------------------------------------
+-- COLOR PRESET
+--------------------------------------------------
+local Colors = {
+    Color3.fromRGB(255,0,0),
+    Color3.fromRGB(255,80,80),
+    Color3.fromRGB(255,0,200),
+    Color3.fromRGB(180,0,255),
+    Color3.fromRGB(0,120,255),
+    Color3.fromRGB(0,220,255),
+    Color3.fromRGB(0,255,160),
+    Color3.fromRGB(0,255,0),
+    Color3.fromRGB(255,220,0),
+    Color3.fromRGB(255,150,0),
+    Color3.fromRGB(255,255,255),
+}
+
+--------------------------------------------------
+-- MODERN UI DENGAN GLOW EFFECT
+--------------------------------------------------
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.ResetOnSpawn = false
+gui.Name = "FIQQZR7_ModernUI"
+
+-- Main Frame dengan efek glow
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.fromOffset(360,230)
+main.Position = UDim2.fromScale(0.5,0.5)
+main.AnchorPoint = Vector2.new(0.5,0.5)
+main.BackgroundColor3 = Color3.fromRGB(10,10,15)
+main.BackgroundTransparency = 0.1
+main.Active = true
+main.Draggable = true
+main.ClipsDescendants = true
+
+-- Sudut moden (4)
+local mainCorner = Instance.new("UICorner",main)
+mainCorner.CornerRadius = UDim.new(0,12)
+
+-- Glow effect (stroke luar)
+local mainStroke = Instance.new("UIStroke",main)
+mainStroke.Thickness = 1.5
+mainStroke.Color = Color3.fromRGB(140,0,255)
+mainStroke.Transparency = 0.3
+mainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Inner glow (stroke dalam)
+local innerStroke = Instance.new("UIStroke",main)
+innerStroke.Thickness = 0.5
+innerStroke.Color = Color3.fromRGB(200,200,255)
+innerStroke.Transparency = 0.6
+innerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Background gradient (glass effect)
+local gradient = Instance.new("UIGradient",main)
+gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(20,20,30)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(5,5,15))
+})
+gradient.Rotation = 90
+
+-- HEADER dengan glow
+local header = Instance.new("TextLabel",main)
+header.Size = UDim2.new(1,0,0,32)
+header.Text = "👑 FIQQZR7TITLE"
+header.Font = Enum.Font.GothamBold
+header.TextSize = 16
+header.TextColor3 = Color3.fromRGB(220,220,255)
+header.BackgroundTransparency = 1
+header.TextStrokeTransparency = 0.5
+header.TextStrokeColor3 = Color3.fromRGB(140,0,255)
+
+-- Garis pemisah bawah header
+local headerLine = Instance.new("Frame",main)
+headerLine.Size = UDim2.new(0.9,0,0,1)
+headerLine.Position = UDim2.new(0.05,0,0,34)
+headerLine.BackgroundColor3 = Color3.fromRGB(140,0,255)
+headerLine.BackgroundTransparency = 0.4
+local lineCorner = Instance.new("UICorner",headerLine)
+lineCorner.CornerRadius = UDim.new(1,0)
+
+-- MINIMIZE & CLOSE dengan glow
+local minimized = false
+local bodyObjects = {}
+
+-- Close button
+local closeBtn = Instance.new("TextButton",main)
+closeBtn.Size = UDim2.fromOffset(24,24)
+closeBtn.Position = UDim2.new(1,-30,0,4)
+closeBtn.Text = "✕"
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 16
+closeBtn.TextColor3 = Color3.new(1,1,1)
+closeBtn.BackgroundColor3 = Color3.fromRGB(180,40,60)
+closeBtn.BackgroundTransparency = 0.2
+local closeCorner = Instance.new("UICorner",closeBtn)
+closeCorner.CornerRadius = UDim.new(0,8)
+local closeStroke = Instance.new("UIStroke",closeBtn)
+closeStroke.Thickness = 1
+closeStroke.Color = Color3.fromRGB(255,100,120)
+closeStroke.Transparency = 0.3
+
+-- Minimize button
+local minBtn = Instance.new("TextButton",main)
+minBtn.Size = UDim2.fromOffset(24,24)
+minBtn.Position = UDim2.new(1,-58,0,4)
+minBtn.Text = "—"
+minBtn.Font = Enum.Font.GothamBold
+minBtn.TextSize = 16
+minBtn.TextColor3 = Color3.new(1,1,1)
+minBtn.BackgroundColor3 = Color3.fromRGB(60,60,80)
+minBtn.BackgroundTransparency = 0.2
+local minCorner = Instance.new("UICorner",minBtn)
+minCorner.CornerRadius = UDim.new(0,8)
+local minStroke = Instance.new("UIStroke",minBtn)
+minStroke.Thickness = 1
+minStroke.Color = Color3.fromRGB(140,140,200)
+minStroke.Transparency = 0.3
+
+closeBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
+
+--------------------------------------------------
+-- BODY (semua dengan glow)
+--------------------------------------------------
+-- TextBox
+local box = Instance.new("TextBox",main)
+box.Size = UDim2.new(0.9,0,0,26)
+box.Position = UDim2.new(0.05,0,0,48)
+box.PlaceholderText = "emoji + title"
+box.PlaceholderColor3 = Color3.fromRGB(140,140,160)
+box.Font = Enum.Font.Gotham
+box.TextSize = 15
+box.TextColor3 = Color3.new(1,1,1)
+box.BackgroundColor3 = Color3.fromRGB(20,20,30)
+box.BackgroundTransparency = 0.2
+local boxCorner = Instance.new("UICorner",box)
+boxCorner.CornerRadius = UDim.new(0,8)
+local boxStroke = Instance.new("UIStroke",box)
+boxStroke.Thickness = 1
+boxStroke.Color = Color3.fromRGB(140,0,255)
+boxStroke.Transparency = 0.5
+table.insert(bodyObjects,box)
+
+local rainbow = false
+local pickedColor = Colors[1]
+
+-- Rainbow button
+local rb = Instance.new("TextButton",main)
+rb.Size = UDim2.fromOffset(135,26)
+rb.Position = UDim2.new(0.05,0,0,84)
+rb.Text = "🌈 GLOW OFF"
+rb.Font = Enum.Font.Gotham
+rb.TextSize = 14
+rb.TextColor3 = Color3.new(1,1,1)
+rb.BackgroundColor3 = Color3.fromRGB(30,30,45)
+rb.BackgroundTransparency = 0.2
+local rbCorner = Instance.new("UICorner",rb)
+rbCorner.CornerRadius = UDim.new(0,8)
+local rbStroke = Instance.new("UIStroke",rb)
+rbStroke.Thickness = 1
+rbStroke.Color = Color3.fromRGB(140,0,255)
+rbStroke.Transparency = 0.4
+table.insert(bodyObjects,rb)
+
+rb.MouseButton1Click:Connect(function()
+    rainbow = not rainbow
+    rb.Text = rainbow and "🌈 GLOW ON" or "🌈 GLOW OFF"
+    rbStroke.Color = rainbow and Color3.fromRGB(255,0,255) or Color3.fromRGB(140,0,255)
+end)
+
+-- Color button
+local cb = Instance.new("TextButton",main)
+cb.Size = UDim2.fromOffset(135,26)
+cb.Position = UDim2.new(0.55,0,0,84)
+cb.Text = "🎨 COLOR"
+cb.Font = Enum.Font.Gotham
+cb.TextSize = 14
+cb.TextColor3 = Color3.new(1,1,1)
+cb.BackgroundColor3 = pickedColor
+cb.BackgroundTransparency = 0.1
+local cbCorner = Instance.new("UICorner",cb)
+cbCorner.CornerRadius = UDim.new(0,8)
+local cbStroke = Instance.new("UIStroke",cb)
+cbStroke.Thickness = 1.5
+cbStroke.Color = Color3.fromRGB(255,255,255)
+cbStroke.Transparency = 0.3
+table.insert(bodyObjects,cb)
+
+cb.MouseButton1Click:Connect(function()
+    pickedColor = Colors[math.random(#Colors)]
+    cb.BackgroundColor3 = pickedColor
+end)
+
+-- Add button
+local add = Instance.new("TextButton",main)
+add.Size = UDim2.new(0.44,0,0,30)
+add.Position = UDim2.new(0.05,0,0,122)
+add.Text = "➕ ADD"
+add.Font = Enum.Font.GothamBold
+add.TextSize = 16
+add.TextColor3 = Color3.new(1,1,1)
+add.BackgroundColor3 = Color3.fromRGB(140,0,255)
+add.BackgroundTransparency = 0.2
+local addCorner = Instance.new("UICorner",add)
+addCorner.CornerRadius = UDim.new(0,10)
+local addStroke = Instance.new("UIStroke",add)
+addStroke.Thickness = 1.5
+addStroke.Color = Color3.fromRGB(200,150,255)
+addStroke.Transparency = 0.2
+table.insert(bodyObjects,add)
+
+add.MouseButton1Click:Connect(function()
+    if box.Text ~= "" then
+        addTitle(box.Text,rainbow,pickedColor)
+        box.Text = ""
+    end
+end)
+
+-- Clear button
+local clr = Instance.new("TextButton",main)
+clr.Size = UDim2.new(0.44,0,0,30)
+clr.Position = UDim2.new(0.51,0,0,122)
+clr.Text = "🗑 CLEAR"
+clr.Font = Enum.Font.GothamBold
+clr.TextSize = 16
+clr.TextColor3 = Color3.new(1,1,1)
+clr.BackgroundColor3 = Color3.fromRGB(190,60,90)
+clr.BackgroundTransparency = 0.2
+local clrCorner = Instance.new("UICorner",clr)
+clrCorner.CornerRadius = UDim.new(0,10)
+local clrStroke = Instance.new("UIStroke",clr)
+clrStroke.Thickness = 1.5
+clrStroke.Color = Color3.fromRGB(255,150,150)
+clrStroke.Transparency = 0.2
+table.insert(bodyObjects,clr)
+
+clr.MouseButton1Click:Connect(clearTitles)
+
+-- Footer glow line
+local footerLine = Instance.new("Frame",main)
+footerLine.Size = UDim2.new(0.9,0,0,1)
+footerLine.Position = UDim2.new(0.05,0,1,-15)
+footerLine.BackgroundColor3 = Color3.fromRGB(140,0,255)
+footerLine.BackgroundTransparency = 0.4
+local footerCorner = Instance.new("UICorner",footerLine)
+footerCorner.CornerRadius = UDim.new(1,0)
+
+-- Version text
+local version = Instance.new("TextLabel",main)
+version.Size = UDim2.new(1,0,0,20)
+version.Position = UDim2.new(0,0,1,-14)
+version.Text = "TITLE VISUAL"
+version.Font = Enum.Font.Gotham
+version.TextSize = 10
+version.TextColor3 = Color3.fromRGB(140,140,180)
+version.BackgroundTransparency = 1
+version.TextTransparency = 0.3
+
+-- MINIMIZE function
+minBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    for _,v in ipairs(bodyObjects) do
+        v.Visible = not minimized
+    end
+    headerLine.Visible = not minimized
+    footerLine.Visible = not minimized
+    version.Visible = not minimized
+    main.Size = minimized and UDim2.fromOffset(360,45) or UDim2.fromOffset(360,230)
+end)
+
+print("✅ FIQQZR7TITLE • MODERN GLOW UI • RUNNING")
